@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
+from django.contrib.auth.password_validation import validate_password
 from .models import CustomUser, Department
 
 
@@ -60,6 +61,53 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError('Must provide username and password.')
         
         return data
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    """Serializer for user registration"""
+    password = serializers.CharField(write_only=True, validators=[validate_password])
+    confirm_password = serializers.CharField(write_only=True)
+    
+    class Meta:
+        model = CustomUser
+        fields = [
+            'username', 'email', 'password', 'confirm_password',
+            'first_name', 'last_name', 'employee_id', 'department', 
+            'phone_number', 'hire_date'
+        ]
+        extra_kwargs = {
+            'email': {'required': True},
+            'first_name': {'required': True},
+            'last_name': {'required': True},
+        }
+    
+    def validate(self, data):
+        if data['password'] != data['confirm_password']:
+            raise serializers.ValidationError("Passwords don't match.")
+        return data
+    
+    def validate_email(self, value):
+        if CustomUser.objects.filter(email=value).exists():
+            raise serializers.ValidationError("User with this email address already exists.")
+        return value
+    
+    def validate_employee_id(self, value):
+        if value and CustomUser.objects.filter(employee_id=value).exists():
+            raise serializers.ValidationError("User with this employee ID already exists.")
+        return value
+    
+    def create(self, validated_data):
+        validated_data.pop('confirm_password')
+        password = validated_data.pop('password')
+        user = CustomUser.objects.create_user(**validated_data)
+        user.set_password(password)
+        user.save()
+        return user
+
+
+class LogoutSerializer(serializers.Serializer):
+    """Serializer for user logout"""
+    refresh_token = serializers.CharField(help_text="JWT refresh token to blacklist")
 
 
 class EmployeeListSerializer(serializers.ModelSerializer):

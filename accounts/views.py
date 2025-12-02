@@ -6,9 +6,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.db.models import Q, Count
 from datetime import datetime, timedelta
+from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
+from drf_spectacular.openapi import OpenApiTypes
 from .models import CustomUser, Department
 from .serializers import (
-    UserSerializer, LoginSerializer, EmployeeListSerializer, 
+    UserSerializer, LoginSerializer, RegisterSerializer, LogoutSerializer, EmployeeListSerializer, 
     DepartmentSerializer, ChangePasswordSerializer, DashboardStatsSerializer
 )
 
@@ -16,7 +18,56 @@ from .serializers import (
 class LoginAPIView(APIView):
     """API view for user login with JWT tokens"""
     permission_classes = [permissions.AllowAny]
+    serializer_class = LoginSerializer
     
+    @extend_schema(
+        request=LoginSerializer,
+        responses={
+            200: OpenApiResponse(
+                description="Login successful",
+                examples=[
+                    OpenApiExample(
+                        "Login Success",
+                        value={
+                            "user": {
+                                "id": 1,
+                                "username": "john_doe",
+                                "email": "john@example.com",
+                                "first_name": "John",
+                                "last_name": "Doe",
+                                "role": "EMPLOYEE",
+                                "employee_id": "EMP001",
+                                "department": "Engineering",
+                                "phone_number": "+1234567890",
+                                "hire_date": "2023-01-15",
+                                "is_active": True
+                            },
+                            "tokens": {
+                                "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+                                "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+                            }
+                        }
+                    )
+                ]
+            ),
+            400: OpenApiResponse(
+                description="Invalid credentials or validation error",
+                examples=[
+                    OpenApiExample(
+                        "Invalid Credentials",
+                        value={"non_field_errors": ["Invalid credentials."]}
+                    ),
+                    OpenApiExample(
+                        "Missing Fields",
+                        value={"non_field_errors": ["Must provide username and password."]}
+                    )
+                ]
+            )
+        },
+        summary="User Login",
+        description="Authenticate user with username and password, returns JWT tokens",
+        tags=["Authentication"]
+    )
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
@@ -33,9 +84,105 @@ class LoginAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class RegisterAPIView(APIView):
+    """API view for user registration"""
+    permission_classes = [permissions.AllowAny]
+    serializer_class = RegisterSerializer
+    
+    @extend_schema(
+        request=RegisterSerializer,
+        responses={
+            201: OpenApiResponse(
+                description="Registration successful",
+                examples=[
+                    OpenApiExample(
+                        "Registration Success",
+                        value={
+                            "user": {
+                                "id": 1,
+                                "username": "john_doe",
+                                "email": "john@example.com",
+                                "first_name": "John",
+                                "last_name": "Doe",
+                                "role": "EMPLOYEE",
+                                "employee_id": "EMP001",
+                                "department": "Engineering",
+                                "phone_number": "+1234567890",
+                                "hire_date": "2023-01-15",
+                                "is_active": True
+                            },
+                            "tokens": {
+                                "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+                                "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+                            }
+                        }
+                    )
+                ]
+            ),
+            400: OpenApiResponse(
+                description="Validation error",
+                examples=[
+                    OpenApiExample(
+                        "Username Exists",
+                        value={"username": ["A user with that username already exists."]}
+                    ),
+                    OpenApiExample(
+                        "Email Exists",
+                        value={"email": ["User with this email address already exists."]}
+                    )
+                ]
+            )
+        },
+        summary="User Registration",
+        description="Register a new user account and return JWT tokens",
+        tags=["Authentication"]
+    )
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            refresh = RefreshToken.for_user(user)
+            
+            return Response({
+                'user': UserSerializer(user).data,
+                'tokens': {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                }
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class LogoutAPIView(APIView):
     """API view for user logout"""
+    serializer_class = LogoutSerializer
     
+    @extend_schema(
+        request=LogoutSerializer,
+        responses={
+            200: OpenApiResponse(
+                description="Successfully logged out",
+                examples=[
+                    OpenApiExample(
+                        "Logout Success",
+                        value={"message": "Successfully logged out"}
+                    )
+                ]
+            ),
+            400: OpenApiResponse(
+                description="Invalid token",
+                examples=[
+                    OpenApiExample(
+                        "Invalid Token",
+                        value={"error": "Invalid token"}
+                    )
+                ]
+            )
+        },
+        summary="User Logout",
+        description="Blacklist the refresh token to logout user",
+        tags=["Authentication"]
+    )
     def post(self, request):
         try:
             refresh_token = request.data.get('refresh_token')
@@ -56,7 +203,38 @@ class ProfileAPIView(generics.RetrieveUpdateAPIView):
 
 class ChangePasswordAPIView(APIView):
     """API view for changing user password"""
+    serializer_class = ChangePasswordSerializer
     
+    @extend_schema(
+        request=ChangePasswordSerializer,
+        responses={
+            200: OpenApiResponse(
+                description="Password changed successfully",
+                examples=[
+                    OpenApiExample(
+                        "Password Change Success",
+                        value={"message": "Password changed successfully"}
+                    )
+                ]
+            ),
+            400: OpenApiResponse(
+                description="Validation error",
+                examples=[
+                    OpenApiExample(
+                        "Old Password Incorrect",
+                        value={"old_password": ["Old password is incorrect."]}
+                    ),
+                    OpenApiExample(
+                        "Passwords Don't Match",
+                        value={"non_field_errors": ["New passwords don't match."]}
+                    )
+                ]
+            )
+        },
+        summary="Change Password",
+        description="Change the current user's password",
+        tags=["Authentication"]
+    )
     def post(self, request):
         serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():

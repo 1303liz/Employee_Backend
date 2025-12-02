@@ -448,15 +448,30 @@ paths:
   /api/change-password/:
     post:
       operationId: change_password_create
-      description: API view for changing user password
+      description: Change the current user's password
+      summary: Change Password
       tags:
-      - change-password
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+        required: true
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          description: Password changed successfully
+        '400':
+          description: Validation error
   /api/dashboard/:
     get:
       operationId: dashboard_retrieve
@@ -2104,28 +2119,63 @@ paths:
   /api/login/:
     post:
       operationId: login_create
-      description: API view for user login with JWT tokens
+      description: Authenticate user with username and password, returns JWT tokens
+      summary: User Login
       tags:
-      - login
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
       security:
       - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
         '200':
-          description: No response body
+          description: Login successful
+        '400':
+          description: Invalid credentials or validation error
   /api/logout/:
     post:
       operationId: logout_create
-      description: API view for user logout
+      description: Blacklist the refresh token to logout user
+      summary: User Logout
       tags:
-      - logout
+      - Authentication
+      requestBody:
+        content:
+          type:
+            schema:
+              type: object
+              additionalProperties: {}
+              description: Unspecified request body
+          properties:
+            schema:
+              refresh_token:
+                type: string
+                description: JWT refresh token to blacklist
+          required:
+            schema:
+              type: object
+              additionalProperties: {}
+              description: Unspecified request body
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          description: Successfully logged out
+        '400':
+          description: Invalid token
   /api/profile/:
     get:
       operationId: profile_retrieve
@@ -2222,6 +2272,34 @@ paths:
               schema:
                 $ref: '#/components/schemas/TokenRefresh'
           description: ''
+  /api/register/:
+    post:
+      operationId: register_create
+      description: Register a new user account and return JWT tokens
+      summary: User Registration
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          description: Registration successful
+        '400':
+          description: Validation error
   /api/user-info/:
     get:
       operationId: user_info_retrieve
@@ -2621,6 +2699,23 @@ components:
         * `PERSONAL` - Personal Break
         * `MEETING` - Meeting Break
         * `OTHER` - Other
+    ChangePasswordRequest:
+      type: object
+      description: Serializer for changing user password
+      properties:
+        old_password:
+          type: string
+          minLength: 1
+        new_password:
+          type: string
+          minLength: 8
+        confirm_password:
+          type: string
+          minLength: 1
+      required:
+      - confirm_password
+      - new_password
+      - old_password
     Department:
       type: object
       description: Serializer for department management
@@ -3736,6 +3831,19 @@ components:
         * `LEAD` - Lead
         * `MANAGER` - Manager
         * `DIRECTOR` - Director
+    LoginRequest:
+      type: object
+      description: Serializer for user login
+      properties:
+        username:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          minLength: 1
+      required:
+      - password
+      - username
     NoteTypeEnum:
       enum:
       - GENERAL
@@ -4412,6 +4520,59 @@ components:
         * `MEDIUM` - Medium
         * `HIGH` - High
         * `URGENT` - Urgent
+    RegisterRequest:
+      type: object
+      description: Serializer for user registration
+      properties:
+        username:
+          type: string
+          minLength: 1
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        confirm_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        employee_id:
+          type: string
+          nullable: true
+          maxLength: 20
+        department:
+          type: string
+          nullable: true
+          maxLength: 100
+        phone_number:
+          type: string
+          nullable: true
+          maxLength: 50
+        hire_date:
+          type: string
+          format: date
+          nullable: true
+      required:
+      - confirm_password
+      - email
+      - first_name
+      - last_name
+      - password
+      - username
     RoleEnum:
       enum:
       - EMPLOYEE
