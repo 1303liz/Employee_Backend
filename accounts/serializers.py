@@ -12,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name', 
             'role', 'employee_id', 'department', 'phone_number', 
-            'hire_date', 'is_active', 'date_joined', 'last_login'
+            'hire_date', 'is_active', 'date_joined', 'last_login', 'password'
         ]
         extra_kwargs = {
             'password': {'write_only': True},

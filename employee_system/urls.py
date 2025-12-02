@@ -19,6 +19,11 @@ from django.urls import path, include
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularSwaggerView,
+    SpectacularRedocView
+)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -60,6 +65,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', api_root, name='root'),
     path('api/docs/', api_root, name='api_root'),
+    # API Schema and Documentation URLs
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/schema/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    # API Endpoints
     path('api/', include('accounts.urls')),
     path('api/employee-management/', include('employees.urls')),
     path('api/leave-management/', include('leave.urls')),

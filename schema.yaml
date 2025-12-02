@@ -1,0 +1,4727 @@
+openapi: 3.0.3
+info:
+  title: Employee Management System API
+  version: 1.0.0
+  description: API documentation for Employee Management System with authentication,
+    employee management, leave management, and attendance tracking
+paths:
+  /:
+    get:
+      operationId: root_retrieve
+      description: API root endpoint with available endpoints
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/attendance-management/break/end/:
+    post:
+      operationId: attendance_management_break_end_create
+      description: End a break
+      tags:
+      - attendance-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/attendance-management/break/start/:
+    post:
+      operationId: attendance_management_break_start_create
+      description: Start a break
+      tags:
+      - attendance-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/attendance-management/check-in/:
+    post:
+      operationId: attendance_management_check_in_create
+      description: Employee check-in
+      tags:
+      - attendance-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/attendance-management/check-out/:
+    post:
+      operationId: attendance_management_check_out_create
+      description: Employee check-out
+      tags:
+      - attendance-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/attendance-management/employee-schedules/:
+    get:
+      operationId: attendance_management_employee_schedules_list
+      description: List or create employee schedules (HR only)
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - attendance-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEmployeeScheduleList'
+          description: ''
+    post:
+      operationId: attendance_management_employee_schedules_create
+      description: List or create employee schedules (HR only)
+      tags:
+      - attendance-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeScheduleRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmployeeScheduleRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmployeeScheduleRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeSchedule'
+          description: ''
+  /api/attendance-management/holidays/:
+    get:
+      operationId: attendance_management_holidays_list
+      description: List or create holidays (HR only for creation)
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - attendance-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedHolidayList'
+          description: ''
+    post:
+      operationId: attendance_management_holidays_create
+      description: List or create holidays (HR only for creation)
+      tags:
+      - attendance-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HolidayRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/HolidayRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/HolidayRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Holiday'
+          description: ''
+  /api/attendance-management/my/history/:
+    get:
+      operationId: attendance_management_my_history_list
+      description: Get current user's attendance history
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - attendance-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAttendanceRecordListList'
+          description: ''
+  /api/attendance-management/my/summary/:
+    get:
+      operationId: attendance_management_my_summary_retrieve
+      description: Get current user's attendance summary
+      tags:
+      - attendance-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/attendance-management/my/today/:
+    get:
+      operationId: attendance_management_my_today_retrieve
+      description: Get current user's today attendance
+      tags:
+      - attendance-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/attendance-management/policies/:
+    get:
+      operationId: attendance_management_policies_list
+      description: List or create attendance policies (HR only for creation)
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - attendance-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAttendancePolicyList'
+          description: ''
+    post:
+      operationId: attendance_management_policies_create
+      description: List or create attendance policies (HR only for creation)
+      tags:
+      - attendance-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttendancePolicyRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AttendancePolicyRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AttendancePolicyRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendancePolicy'
+          description: ''
+  /api/attendance-management/records/:
+    get:
+      operationId: attendance_management_records_list
+      description: List attendance records
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - attendance-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAttendanceRecordListList'
+          description: ''
+  /api/attendance-management/records/{id}/:
+    get:
+      operationId: attendance_management_records_retrieve
+      description: Retrieve or update attendance record
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - attendance-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceRecordDetail'
+          description: ''
+    put:
+      operationId: attendance_management_records_update
+      description: Retrieve or update attendance record
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - attendance-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttendanceRecordDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AttendanceRecordDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AttendanceRecordDetailRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceRecordDetail'
+          description: ''
+    patch:
+      operationId: attendance_management_records_partial_update
+      description: Retrieve or update attendance record
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - attendance-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAttendanceRecordDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAttendanceRecordDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAttendanceRecordDetailRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceRecordDetail'
+          description: ''
+  /api/attendance-management/reports/generate/:
+    post:
+      operationId: attendance_management_reports_generate_create
+      description: Generate attendance report
+      tags:
+      - attendance-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/attendance-management/schedules/:
+    get:
+      operationId: attendance_management_schedules_list
+      description: List or create work schedules (HR only for creation)
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - attendance-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedWorkScheduleList'
+          description: ''
+    post:
+      operationId: attendance_management_schedules_create
+      description: List or create work schedules (HR only for creation)
+      tags:
+      - attendance-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkScheduleRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WorkScheduleRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WorkScheduleRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkSchedule'
+          description: ''
+  /api/attendance-management/statistics/:
+    get:
+      operationId: attendance_management_statistics_retrieve
+      description: Get comprehensive attendance statistics
+      tags:
+      - attendance-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/change-password/:
+    post:
+      operationId: change_password_create
+      description: API view for changing user password
+      tags:
+      - change-password
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/dashboard/:
+    get:
+      operationId: dashboard_retrieve
+      description: API view for dashboard statistics
+      tags:
+      - dashboard
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/departments/:
+    get:
+      operationId: departments_list
+      description: API view for department management (HR only)
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - departments
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDepartmentList'
+          description: ''
+    post:
+      operationId: departments_create
+      description: API view for department management (HR only)
+      tags:
+      - departments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DepartmentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DepartmentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+          description: ''
+  /api/departments/{id}/:
+    get:
+      operationId: departments_retrieve
+      description: API view for department detail management (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - departments
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+          description: ''
+    put:
+      operationId: departments_update
+      description: API view for department detail management (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - departments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DepartmentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DepartmentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+          description: ''
+    patch:
+      operationId: departments_partial_update
+      description: API view for department detail management (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - departments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDepartmentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDepartmentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDepartmentRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+          description: ''
+    delete:
+      operationId: departments_destroy
+      description: API view for department detail management (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - departments
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/docs/:
+    get:
+      operationId: docs_retrieve
+      description: API root endpoint with available endpoints
+      tags:
+      - docs
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/employee-management/:
+    get:
+      operationId: employee_management_list
+      description: List all employees or create a new employee (HR only)
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - employee-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEmployeeProfileListList'
+          description: ''
+    post:
+      operationId: employee_management_create
+      description: List all employees or create a new employee (HR only)
+      tags:
+      - employee-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmployeeCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmployeeCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeCreate'
+          description: ''
+  /api/employee-management/{employee_id}/documents/:
+    get:
+      operationId: employee_management_documents_list
+      description: List or create employee documents
+      parameters:
+      - in: path
+        name: employee_id
+        schema:
+          type: integer
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - employee-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEmployeeDocumentList'
+          description: ''
+    post:
+      operationId: employee_management_documents_create
+      description: List or create employee documents
+      parameters:
+      - in: path
+        name: employee_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employee-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeDocumentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmployeeDocumentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmployeeDocumentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeDocument'
+          description: ''
+  /api/employee-management/{employee_id}/documents/{id}/:
+    get:
+      operationId: employee_management_documents_retrieve
+      description: Retrieve, update or delete employee document
+      parameters:
+      - in: path
+        name: employee_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employee-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeDocument'
+          description: ''
+    put:
+      operationId: employee_management_documents_update
+      description: Retrieve, update or delete employee document
+      parameters:
+      - in: path
+        name: employee_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employee-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeDocumentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmployeeDocumentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmployeeDocumentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeDocument'
+          description: ''
+    patch:
+      operationId: employee_management_documents_partial_update
+      description: Retrieve, update or delete employee document
+      parameters:
+      - in: path
+        name: employee_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employee-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEmployeeDocumentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEmployeeDocumentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEmployeeDocumentRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeDocument'
+          description: ''
+    delete:
+      operationId: employee_management_documents_destroy
+      description: Retrieve, update or delete employee document
+      parameters:
+      - in: path
+        name: employee_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employee-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/employee-management/{employee_id}/notes/:
+    get:
+      operationId: employee_management_notes_list
+      description: List or create employee notes (HR only)
+      parameters:
+      - in: path
+        name: employee_id
+        schema:
+          type: integer
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - employee-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEmployeeNoteList'
+          description: ''
+    post:
+      operationId: employee_management_notes_create
+      description: List or create employee notes (HR only)
+      parameters:
+      - in: path
+        name: employee_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employee-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeNoteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmployeeNoteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmployeeNoteRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeNote'
+          description: ''
+  /api/employee-management/{employee_id}/notes/{id}/:
+    get:
+      operationId: employee_management_notes_retrieve
+      description: Retrieve, update or delete employee note (HR only)
+      parameters:
+      - in: path
+        name: employee_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employee-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeNote'
+          description: ''
+    put:
+      operationId: employee_management_notes_update
+      description: Retrieve, update or delete employee note (HR only)
+      parameters:
+      - in: path
+        name: employee_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employee-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeNoteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmployeeNoteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmployeeNoteRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeNote'
+          description: ''
+    patch:
+      operationId: employee_management_notes_partial_update
+      description: Retrieve, update or delete employee note (HR only)
+      parameters:
+      - in: path
+        name: employee_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employee-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEmployeeNoteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEmployeeNoteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEmployeeNoteRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeNote'
+          description: ''
+    delete:
+      operationId: employee_management_notes_destroy
+      description: Retrieve, update or delete employee note (HR only)
+      parameters:
+      - in: path
+        name: employee_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employee-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/employee-management/{id}/:
+    get:
+      operationId: employee_management_retrieve
+      description: Retrieve, update or delete employee (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employee-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeProfileDetail'
+          description: ''
+    put:
+      operationId: employee_management_update
+      description: Retrieve, update or delete employee (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employee-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeProfileDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmployeeProfileDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmployeeProfileDetailRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeProfileDetail'
+          description: ''
+    patch:
+      operationId: employee_management_partial_update
+      description: Retrieve, update or delete employee (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employee-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEmployeeProfileDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEmployeeProfileDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEmployeeProfileDetailRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeProfileDetail'
+          description: ''
+    delete:
+      operationId: employee_management_destroy
+      description: Retrieve, update or delete employee (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employee-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/employee-management/bulk-update/:
+    post:
+      operationId: employee_management_bulk_update_create
+      description: Bulk update multiple employees
+      tags:
+      - employee-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/employee-management/my-profile/:
+    get:
+      operationId: employee_management_my_profile_retrieve
+      description: Employee can view and update their own profile
+      tags:
+      - employee-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeProfileDetail'
+          description: ''
+    put:
+      operationId: employee_management_my_profile_update
+      description: Employee can view and update their own profile
+      tags:
+      - employee-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeProfileDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmployeeProfileDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmployeeProfileDetailRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeProfileDetail'
+          description: ''
+    patch:
+      operationId: employee_management_my_profile_partial_update
+      description: Employee can view and update their own profile
+      tags:
+      - employee-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEmployeeProfileDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEmployeeProfileDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEmployeeProfileDetailRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeProfileDetail'
+          description: ''
+  /api/employee-management/positions/:
+    get:
+      operationId: employee_management_positions_list
+      description: List all positions or create new position (HR only)
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - employee-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPositionList'
+          description: ''
+    post:
+      operationId: employee_management_positions_create
+      description: List all positions or create new position (HR only)
+      tags:
+      - employee-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PositionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PositionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PositionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Position'
+          description: ''
+  /api/employee-management/positions/{id}/:
+    get:
+      operationId: employee_management_positions_retrieve
+      description: Retrieve, update or delete position (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employee-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Position'
+          description: ''
+    put:
+      operationId: employee_management_positions_update
+      description: Retrieve, update or delete position (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employee-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PositionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PositionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PositionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Position'
+          description: ''
+    patch:
+      operationId: employee_management_positions_partial_update
+      description: Retrieve, update or delete position (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employee-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPositionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPositionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPositionRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Position'
+          description: ''
+    delete:
+      operationId: employee_management_positions_destroy
+      description: Retrieve, update or delete position (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employee-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/employee-management/statistics/:
+    get:
+      operationId: employee_management_statistics_retrieve
+      description: Get comprehensive employee statistics
+      tags:
+      - employee-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/employees/:
+    get:
+      operationId: employees_list
+      description: API view for listing and creating employees (HR only)
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - employees
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEmployeeListList'
+          description: ''
+    post:
+      operationId: employees_create
+      description: API view for listing and creating employees (HR only)
+      tags:
+      - employees
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/employees/{id}/:
+    get:
+      operationId: employees_retrieve
+      description: API view for employee detail management (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employees
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: employees_update
+      description: API view for employee detail management (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employees
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: employees_partial_update
+      description: API view for employee detail management (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employees
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    delete:
+      operationId: employees_destroy
+      description: API view for employee detail management (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - employees
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/employees/stats/:
+    get:
+      operationId: employees_stats_retrieve
+      description: API endpoint for employee statistics (HR only)
+      tags:
+      - employees
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/leave-management/applications/:
+    get:
+      operationId: leave_management_applications_list
+      description: List leave applications or create new application
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - leave-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLeaveApplicationListList'
+          description: ''
+    post:
+      operationId: leave_management_applications_create
+      description: List leave applications or create new application
+      tags:
+      - leave-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaveApplicationCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LeaveApplicationCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LeaveApplicationCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveApplicationCreate'
+          description: ''
+  /api/leave-management/applications/{leave_app_id}/attachments/:
+    get:
+      operationId: leave_management_applications_attachments_list
+      description: List or upload attachments for leave application
+      parameters:
+      - in: path
+        name: leave_app_id
+        schema:
+          type: integer
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - leave-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLeaveApplicationAttachmentList'
+          description: ''
+    post:
+      operationId: leave_management_applications_attachments_create
+      description: List or upload attachments for leave application
+      parameters:
+      - in: path
+        name: leave_app_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - leave-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaveApplicationAttachmentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LeaveApplicationAttachmentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LeaveApplicationAttachmentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveApplicationAttachment'
+          description: ''
+  /api/leave-management/applications/{leave_app_id}/comments/:
+    get:
+      operationId: leave_management_applications_comments_list
+      description: List or add comments to leave application
+      parameters:
+      - in: path
+        name: leave_app_id
+        schema:
+          type: integer
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - leave-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLeaveApplicationCommentList'
+          description: ''
+    post:
+      operationId: leave_management_applications_comments_create
+      description: List or add comments to leave application
+      parameters:
+      - in: path
+        name: leave_app_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - leave-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaveApplicationCommentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LeaveApplicationCommentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LeaveApplicationCommentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveApplicationComment'
+          description: ''
+  /api/leave-management/applications/{id}/:
+    get:
+      operationId: leave_management_applications_retrieve
+      description: Retrieve, update or delete leave application
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - leave-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveApplicationDetail'
+          description: ''
+    put:
+      operationId: leave_management_applications_update
+      description: Retrieve, update or delete leave application
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - leave-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaveApplicationDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LeaveApplicationDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LeaveApplicationDetailRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveApplicationDetail'
+          description: ''
+    patch:
+      operationId: leave_management_applications_partial_update
+      description: Retrieve, update or delete leave application
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - leave-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLeaveApplicationDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLeaveApplicationDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLeaveApplicationDetailRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveApplicationDetail'
+          description: ''
+    delete:
+      operationId: leave_management_applications_destroy
+      description: Retrieve, update or delete leave application
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - leave-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/leave-management/applications/{id}/approve/:
+    post:
+      operationId: leave_management_applications_approve_create
+      description: HR approval/rejection of leave applications
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - leave-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/leave-management/balances/:
+    get:
+      operationId: leave_management_balances_list
+      description: List leave balances
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - leave-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLeaveBalanceList'
+          description: ''
+  /api/leave-management/bulk-approve/:
+    post:
+      operationId: leave_management_bulk_approve_create
+      description: Bulk approve multiple leave applications
+      tags:
+      - leave-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/leave-management/my-balances/:
+    get:
+      operationId: leave_management_my_balances_list
+      description: Get current user's leave balances
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - leave-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLeaveBalanceList'
+          description: ''
+  /api/leave-management/my-summary/:
+    get:
+      operationId: leave_management_my_summary_retrieve
+      description: Get current user's leave summary
+      tags:
+      - leave-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/leave-management/statistics/:
+    get:
+      operationId: leave_management_statistics_retrieve
+      description: Get comprehensive leave statistics
+      tags:
+      - leave-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/leave-management/types/:
+    get:
+      operationId: leave_management_types_list
+      description: List all leave types or create new type (HR only for creation)
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - leave-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLeaveTypeList'
+          description: ''
+    post:
+      operationId: leave_management_types_create
+      description: List all leave types or create new type (HR only for creation)
+      tags:
+      - leave-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaveTypeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LeaveTypeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LeaveTypeRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveType'
+          description: ''
+  /api/leave-management/types/{id}/:
+    get:
+      operationId: leave_management_types_retrieve
+      description: Retrieve, update or delete leave type (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - leave-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveType'
+          description: ''
+    put:
+      operationId: leave_management_types_update
+      description: Retrieve, update or delete leave type (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - leave-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaveTypeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LeaveTypeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LeaveTypeRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveType'
+          description: ''
+    patch:
+      operationId: leave_management_types_partial_update
+      description: Retrieve, update or delete leave type (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - leave-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLeaveTypeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLeaveTypeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLeaveTypeRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveType'
+          description: ''
+    delete:
+      operationId: leave_management_types_destroy
+      description: Retrieve, update or delete leave type (HR only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - leave-management
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/login/:
+    post:
+      operationId: login_create
+      description: API view for user login with JWT tokens
+      tags:
+      - login
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/logout/:
+    post:
+      operationId: logout_create
+      description: API view for user logout
+      tags:
+      - logout
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/profile/:
+    get:
+      operationId: profile_retrieve
+      description: API view for user profile management
+      tags:
+      - profile
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: profile_update
+      description: API view for user profile management
+      tags:
+      - profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: profile_partial_update
+      description: API view for user profile management
+      tags:
+      - profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/refresh/:
+    post:
+      operationId: refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - refresh
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/user-info/:
+    get:
+      operationId: user_info_retrieve
+      description: API endpoint to get current user information
+      tags:
+      - user-info
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+components:
+  schemas:
+    AttendancePolicy:
+      type: object
+      description: Serializer for attendance policies
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        working_days_per_week:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        working_hours_per_day:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,2})?$
+        overtime_threshold_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,2})?$
+        overtime_multiplier:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,2})?$
+        late_threshold_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        early_departure_threshold_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        minimum_break_duration_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        maximum_break_duration_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        consecutive_absence_alert_days:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        monthly_absence_alert_percentage:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+    AttendancePolicyRequest:
+      type: object
+      description: Serializer for attendance policies
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+        working_days_per_week:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        working_hours_per_day:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,2})?$
+        overtime_threshold_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,2})?$
+        overtime_multiplier:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,2})?$
+        late_threshold_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        early_departure_threshold_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        minimum_break_duration_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        maximum_break_duration_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        consecutive_absence_alert_days:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        monthly_absence_alert_percentage:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        is_active:
+          type: boolean
+      required:
+      - name
+    AttendanceRecordDetail:
+      type: object
+      description: Detailed serializer for attendance records
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        employee:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        date:
+          type: string
+          format: date
+        check_in_time:
+          type: string
+          format: date-time
+          nullable: true
+        check_out_time:
+          type: string
+          format: date-time
+          nullable: true
+        total_break_duration:
+          type: string
+        total_break_minutes:
+          type: string
+          readOnly: true
+        break_sessions_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        status:
+          $ref: '#/components/schemas/Status7ccEnum'
+        status_display:
+          type: string
+          readOnly: true
+        is_late:
+          type: boolean
+        is_early_departure:
+          type: boolean
+        scheduled_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,2})?$
+        actual_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,2})?$
+          readOnly: true
+        overtime_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,2})?$
+          readOnly: true
+        check_in_location:
+          type: string
+          maxLength: 200
+        check_out_location:
+          type: string
+          maxLength: 200
+        notes:
+          type: string
+        break_records:
+          type: array
+          items:
+            $ref: '#/components/schemas/BreakRecord'
+          readOnly: true
+        is_checked_in:
+          type: string
+          readOnly: true
+        work_duration_display:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - actual_hours
+      - break_records
+      - created_at
+      - date
+      - employee
+      - id
+      - is_checked_in
+      - overtime_hours
+      - status_display
+      - total_break_minutes
+      - updated_at
+      - work_duration_display
+    AttendanceRecordDetailRequest:
+      type: object
+      description: Detailed serializer for attendance records
+      properties:
+        date:
+          type: string
+          format: date
+        check_in_time:
+          type: string
+          format: date-time
+          nullable: true
+        check_out_time:
+          type: string
+          format: date-time
+          nullable: true
+        total_break_duration:
+          type: string
+        break_sessions_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        status:
+          $ref: '#/components/schemas/Status7ccEnum'
+        is_late:
+          type: boolean
+        is_early_departure:
+          type: boolean
+        scheduled_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,2})?$
+        check_in_location:
+          type: string
+          maxLength: 200
+        check_out_location:
+          type: string
+          maxLength: 200
+        notes:
+          type: string
+      required:
+      - date
+    AttendanceRecordList:
+      type: object
+      description: List serializer for attendance records
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        employee_name:
+          type: string
+          readOnly: true
+        date:
+          type: string
+          format: date
+        check_in_time:
+          type: string
+          format: date-time
+          nullable: true
+        check_out_time:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          $ref: '#/components/schemas/Status7ccEnum'
+        status_display:
+          type: string
+          readOnly: true
+        is_late:
+          type: boolean
+        actual_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,2})?$
+        overtime_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,2})?$
+        is_checked_in:
+          type: string
+          readOnly: true
+      required:
+      - date
+      - employee_name
+      - id
+      - is_checked_in
+      - status_display
+    BlankEnum:
+      enum:
+      - ''
+    BreakRecord:
+      type: object
+      description: Serializer for break records
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        break_type:
+          $ref: '#/components/schemas/BreakTypeEnum'
+        break_type_display:
+          type: string
+          readOnly: true
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+          nullable: true
+        duration:
+          type: string
+          readOnly: true
+          nullable: true
+        duration_minutes:
+          type: string
+          readOnly: true
+        notes:
+          type: string
+          maxLength: 200
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - break_type_display
+      - created_at
+      - duration
+      - duration_minutes
+      - id
+      - start_time
+    BreakRecordRequest:
+      type: object
+      description: Serializer for break records
+      properties:
+        break_type:
+          $ref: '#/components/schemas/BreakTypeEnum'
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+          nullable: true
+        notes:
+          type: string
+          maxLength: 200
+      required:
+      - start_time
+    BreakTypeEnum:
+      enum:
+      - LUNCH
+      - TEA
+      - PERSONAL
+      - MEETING
+      - OTHER
+      type: string
+      description: |-
+        * `LUNCH` - Lunch Break
+        * `TEA` - Tea Break
+        * `PERSONAL` - Personal Break
+        * `MEETING` - Meeting Break
+        * `OTHER` - Other
+    Department:
+      type: object
+      description: Serializer for department management
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+    DepartmentRequest:
+      type: object
+      description: Serializer for department management
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+      required:
+      - name
+    DocumentTypeEnum:
+      enum:
+      - RESUME
+      - CONTRACT
+      - ID_COPY
+      - CERTIFICATE
+      - OTHER
+      type: string
+      description: |-
+        * `RESUME` - Resume
+        * `CONTRACT` - Employment Contract
+        * `ID_COPY` - ID Copy
+        * `CERTIFICATE` - Certificate
+        * `OTHER` - Other
+    EmployeeCreate:
+      type: object
+      description: Serializer for creating new employee with user account
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        first_name:
+          type: string
+        last_name:
+          type: string
+        position_id:
+          type: integer
+          nullable: true
+        supervisor_id:
+          type: integer
+          nullable: true
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        gender:
+          oneOf:
+          - $ref: '#/components/schemas/GenderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        emergency_contact_name:
+          type: string
+          maxLength: 100
+        emergency_contact_phone:
+          type: string
+          maxLength: 15
+        address:
+          type: string
+        salary:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        employment_type:
+          $ref: '#/components/schemas/EmploymentTypeEnum'
+        status:
+          $ref: '#/components/schemas/Status642Enum'
+      required:
+      - email
+      - first_name
+      - last_name
+      - username
+    EmployeeCreateRequest:
+      type: object
+      description: Serializer for creating new employee with user account
+      properties:
+        username:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        first_name:
+          type: string
+          minLength: 1
+        last_name:
+          type: string
+          minLength: 1
+        position_id:
+          type: integer
+          nullable: true
+        supervisor_id:
+          type: integer
+          nullable: true
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        gender:
+          oneOf:
+          - $ref: '#/components/schemas/GenderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        emergency_contact_name:
+          type: string
+          maxLength: 100
+        emergency_contact_phone:
+          type: string
+          maxLength: 15
+        address:
+          type: string
+        salary:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        employment_type:
+          $ref: '#/components/schemas/EmploymentTypeEnum'
+        status:
+          $ref: '#/components/schemas/Status642Enum'
+      required:
+      - email
+      - first_name
+      - last_name
+      - password
+      - username
+    EmployeeDocument:
+      type: object
+      description: Serializer for employee documents
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        document_type:
+          $ref: '#/components/schemas/DocumentTypeEnum'
+        document_type_display:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        file_path:
+          type: string
+          maxLength: 500
+        uploaded_by:
+          type: integer
+          readOnly: true
+          nullable: true
+        uploaded_by_name:
+          type: string
+          readOnly: true
+        uploaded_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - document_type
+      - document_type_display
+      - file_path
+      - id
+      - title
+      - uploaded_at
+      - uploaded_by
+      - uploaded_by_name
+    EmployeeDocumentRequest:
+      type: object
+      description: Serializer for employee documents
+      properties:
+        document_type:
+          $ref: '#/components/schemas/DocumentTypeEnum'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        file_path:
+          type: string
+          minLength: 1
+          maxLength: 500
+      required:
+      - document_type
+      - file_path
+      - title
+    EmployeeList:
+      type: object
+      description: Serializer for employee list view (HR only)
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        full_name:
+          type: string
+          readOnly: true
+        employee_id:
+          type: string
+          nullable: true
+          maxLength: 20
+        department:
+          type: string
+          nullable: true
+          maxLength: 100
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        role_display:
+          type: string
+          readOnly: true
+        hire_date:
+          type: string
+          format: date
+          nullable: true
+        is_active:
+          type: boolean
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+        last_login:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - full_name
+      - id
+      - role_display
+      - username
+    EmployeeNote:
+      type: object
+      description: Serializer for employee notes
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        note:
+          type: string
+        note_type:
+          $ref: '#/components/schemas/NoteTypeEnum'
+        note_type_display:
+          type: string
+          readOnly: true
+        is_confidential:
+          type: boolean
+        author:
+          type: integer
+          readOnly: true
+        author_name:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - author
+      - author_name
+      - created_at
+      - id
+      - note
+      - note_type_display
+    EmployeeNoteRequest:
+      type: object
+      description: Serializer for employee notes
+      properties:
+        note:
+          type: string
+          minLength: 1
+        note_type:
+          $ref: '#/components/schemas/NoteTypeEnum'
+        is_confidential:
+          type: boolean
+      required:
+      - note
+    EmployeeProfileDetail:
+      type: object
+      description: Detailed serializer for employee profile
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        position:
+          allOf:
+          - $ref: '#/components/schemas/Position'
+          readOnly: true
+        supervisor:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        gender:
+          oneOf:
+          - $ref: '#/components/schemas/GenderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        gender_display:
+          type: string
+          readOnly: true
+        emergency_contact_name:
+          type: string
+          maxLength: 100
+        emergency_contact_phone:
+          type: string
+          maxLength: 15
+        address:
+          type: string
+        salary:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        employment_type:
+          $ref: '#/components/schemas/EmploymentTypeEnum'
+        employment_type_display:
+          type: string
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/Status642Enum'
+        status_display:
+          type: string
+          readOnly: true
+        termination_date:
+          type: string
+          format: date
+          nullable: true
+        full_name:
+          type: string
+          readOnly: true
+        is_active_employee:
+          type: boolean
+          readOnly: true
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeDocument'
+          readOnly: true
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeNote'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - documents
+      - employment_type_display
+      - full_name
+      - gender_display
+      - id
+      - is_active_employee
+      - notes
+      - position
+      - status_display
+      - supervisor
+      - updated_at
+      - user
+    EmployeeProfileDetailRequest:
+      type: object
+      description: Detailed serializer for employee profile
+      properties:
+        position_id:
+          type: integer
+          writeOnly: true
+          nullable: true
+        supervisor_id:
+          type: integer
+          writeOnly: true
+          nullable: true
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        gender:
+          oneOf:
+          - $ref: '#/components/schemas/GenderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        emergency_contact_name:
+          type: string
+          maxLength: 100
+        emergency_contact_phone:
+          type: string
+          maxLength: 15
+        address:
+          type: string
+        salary:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        employment_type:
+          $ref: '#/components/schemas/EmploymentTypeEnum'
+        status:
+          $ref: '#/components/schemas/Status642Enum'
+        termination_date:
+          type: string
+          format: date
+          nullable: true
+    EmployeeProfileList:
+      type: object
+      description: List serializer for employee profiles
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        position_title:
+          type: string
+          readOnly: true
+        supervisor_name:
+          type: string
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+        employment_type:
+          $ref: '#/components/schemas/EmploymentTypeEnum'
+        employment_type_display:
+          type: string
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/Status642Enum'
+        status_display:
+          type: string
+          readOnly: true
+        is_active_employee:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - employment_type_display
+      - full_name
+      - id
+      - is_active_employee
+      - position_title
+      - status_display
+      - supervisor_name
+      - updated_at
+      - user
+    EmployeeSchedule:
+      type: object
+      description: Serializer for employee schedules
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        employee:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        schedule:
+          allOf:
+          - $ref: '#/components/schemas/WorkSchedule'
+          readOnly: true
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+          nullable: true
+        custom_start_time:
+          type: string
+          format: time
+          nullable: true
+        custom_end_time:
+          type: string
+          format: time
+          nullable: true
+        effective_start_time:
+          type: string
+          readOnly: true
+        effective_end_time:
+          type: string
+          readOnly: true
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - effective_end_time
+      - effective_start_time
+      - employee
+      - id
+      - schedule
+      - start_date
+    EmployeeScheduleRequest:
+      type: object
+      description: Serializer for employee schedules
+      properties:
+        schedule_id:
+          type: integer
+          writeOnly: true
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+          nullable: true
+        custom_start_time:
+          type: string
+          format: time
+          nullable: true
+        custom_end_time:
+          type: string
+          format: time
+          nullable: true
+        is_active:
+          type: boolean
+      required:
+      - schedule_id
+      - start_date
+    EmploymentTypeEnum:
+      enum:
+      - FULL_TIME
+      - PART_TIME
+      - CONTRACT
+      - INTERN
+      type: string
+      description: |-
+        * `FULL_TIME` - Full-time
+        * `PART_TIME` - Part-time
+        * `CONTRACT` - Contract
+        * `INTERN` - Intern
+    GenderEnum:
+      enum:
+      - MALE
+      - FEMALE
+      - OTHER
+      - PREFER_NOT_TO_SAY
+      type: string
+      description: |-
+        * `MALE` - Male
+        * `FEMALE` - Female
+        * `OTHER` - Other
+        * `PREFER_NOT_TO_SAY` - Prefer not to say
+    Holiday:
+      type: object
+      description: Serializer for holidays
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        date:
+          type: string
+          format: date
+        description:
+          type: string
+        is_optional:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - date
+      - id
+      - name
+    HolidayRequest:
+      type: object
+      description: Serializer for holidays
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        date:
+          type: string
+          format: date
+        description:
+          type: string
+        is_optional:
+          type: boolean
+      required:
+      - date
+      - name
+    LeaveApplicationAttachment:
+      type: object
+      description: Serializer for leave application attachments
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        file_name:
+          type: string
+          maxLength: 255
+        file_path:
+          type: string
+          maxLength: 500
+        file_size:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: File size in bytes
+        uploaded_by:
+          type: integer
+          readOnly: true
+        uploaded_by_name:
+          type: string
+          readOnly: true
+        uploaded_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - file_name
+      - file_path
+      - file_size
+      - id
+      - uploaded_at
+      - uploaded_by
+      - uploaded_by_name
+    LeaveApplicationAttachmentRequest:
+      type: object
+      description: Serializer for leave application attachments
+      properties:
+        file_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        file_path:
+          type: string
+          minLength: 1
+          maxLength: 500
+        file_size:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: File size in bytes
+      required:
+      - file_name
+      - file_path
+      - file_size
+    LeaveApplicationComment:
+      type: object
+      description: Serializer for leave application comments
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        comment:
+          type: string
+        is_internal:
+          type: boolean
+          description: Internal comments visible only to HR
+        author:
+          type: integer
+          readOnly: true
+        author_name:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - author
+      - author_name
+      - comment
+      - created_at
+      - id
+    LeaveApplicationCommentRequest:
+      type: object
+      description: Serializer for leave application comments
+      properties:
+        comment:
+          type: string
+          minLength: 1
+        is_internal:
+          type: boolean
+          description: Internal comments visible only to HR
+      required:
+      - comment
+    LeaveApplicationCreate:
+      type: object
+      description: Serializer for creating leave applications
+      properties:
+        leave_type_id:
+          type: integer
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        reason:
+          type: string
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+        contact_number:
+          type: string
+          maxLength: 15
+        emergency_contact:
+          type: string
+          maxLength: 100
+        is_half_day:
+          type: boolean
+        replacement_employee_id:
+          type: integer
+          nullable: true
+      required:
+      - end_date
+      - leave_type_id
+      - reason
+      - start_date
+    LeaveApplicationCreateRequest:
+      type: object
+      description: Serializer for creating leave applications
+      properties:
+        leave_type_id:
+          type: integer
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        reason:
+          type: string
+          minLength: 1
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+        contact_number:
+          type: string
+          maxLength: 15
+        emergency_contact:
+          type: string
+          maxLength: 100
+        is_half_day:
+          type: boolean
+        replacement_employee_id:
+          type: integer
+          nullable: true
+      required:
+      - end_date
+      - leave_type_id
+      - reason
+      - start_date
+    LeaveApplicationDetail:
+      type: object
+      description: Detailed serializer for leave applications
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        employee:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        leave_type:
+          allOf:
+          - $ref: '#/components/schemas/LeaveType'
+          readOnly: true
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        total_days:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,1})?$
+        reason:
+          type: string
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+        priority_display:
+          type: string
+          readOnly: true
+        contact_number:
+          type: string
+          maxLength: 15
+        emergency_contact:
+          type: string
+          maxLength: 100
+        status:
+          $ref: '#/components/schemas/StatusD95Enum'
+        status_display:
+          type: string
+          readOnly: true
+        applied_on:
+          type: string
+          format: date-time
+          readOnly: true
+        approved_by:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        approved_on:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        approval_comments:
+          type: string
+        is_half_day:
+          type: boolean
+        replacement_employee:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeaveApplicationAttachment'
+          readOnly: true
+        comments:
+          type: string
+          readOnly: true
+      required:
+      - applied_on
+      - approved_by
+      - approved_on
+      - attachments
+      - comments
+      - employee
+      - end_date
+      - id
+      - leave_type
+      - priority_display
+      - reason
+      - replacement_employee
+      - start_date
+      - status_display
+      - total_days
+    LeaveApplicationDetailRequest:
+      type: object
+      description: Detailed serializer for leave applications
+      properties:
+        leave_type_id:
+          type: integer
+          writeOnly: true
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        total_days:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,1})?$
+        reason:
+          type: string
+          minLength: 1
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+        contact_number:
+          type: string
+          maxLength: 15
+        emergency_contact:
+          type: string
+          maxLength: 100
+        status:
+          $ref: '#/components/schemas/StatusD95Enum'
+        approval_comments:
+          type: string
+        is_half_day:
+          type: boolean
+        replacement_employee_id:
+          type: integer
+          writeOnly: true
+          nullable: true
+      required:
+      - end_date
+      - reason
+      - start_date
+      - total_days
+    LeaveApplicationList:
+      type: object
+      description: List serializer for leave applications
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        employee_name:
+          type: string
+          readOnly: true
+        leave_type_name:
+          type: string
+          readOnly: true
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        total_days:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,1})?$
+        status:
+          $ref: '#/components/schemas/StatusD95Enum'
+        status_display:
+          type: string
+          readOnly: true
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+        priority_display:
+          type: string
+          readOnly: true
+        applied_on:
+          type: string
+          format: date-time
+          readOnly: true
+        reason:
+          type: string
+      required:
+      - applied_on
+      - employee_name
+      - end_date
+      - id
+      - leave_type_name
+      - priority_display
+      - reason
+      - start_date
+      - status_display
+      - total_days
+    LeaveBalance:
+      type: object
+      description: Serializer for leave balances
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        leave_type:
+          allOf:
+          - $ref: '#/components/schemas/LeaveType'
+          readOnly: true
+        year:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          default: 2025
+        total_allocated:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          description: Total days allocated for this year
+        used_days:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          description: Days already used/approved
+        pending_days:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          description: Days in pending applications
+        available_days:
+          type: string
+          readOnly: true
+        utilization_percentage:
+          type: string
+          readOnly: true
+      required:
+      - available_days
+      - id
+      - leave_type
+      - user
+      - utilization_percentage
+    LeaveType:
+      type: object
+      description: Serializer for leave types
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+        description:
+          type: string
+        max_days_per_year:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Maximum days allowed per year for this leave type
+        requires_approval:
+          type: boolean
+          description: Whether this leave type requires HR approval
+        advance_notice_days:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Minimum days of advance notice required
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+    LeaveTypeRequest:
+      type: object
+      description: Serializer for leave types
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        description:
+          type: string
+        max_days_per_year:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Maximum days allowed per year for this leave type
+        requires_approval:
+          type: boolean
+          description: Whether this leave type requires HR approval
+        advance_notice_days:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Minimum days of advance notice required
+        is_active:
+          type: boolean
+      required:
+      - name
+    LevelEnum:
+      enum:
+      - INTERN
+      - JUNIOR
+      - SENIOR
+      - LEAD
+      - MANAGER
+      - DIRECTOR
+      type: string
+      description: |-
+        * `INTERN` - Intern
+        * `JUNIOR` - Junior
+        * `SENIOR` - Senior
+        * `LEAD` - Lead
+        * `MANAGER` - Manager
+        * `DIRECTOR` - Director
+    NoteTypeEnum:
+      enum:
+      - GENERAL
+      - PERFORMANCE
+      - DISCIPLINARY
+      - ACHIEVEMENT
+      - TRAINING
+      type: string
+      description: |-
+        * `GENERAL` - General
+        * `PERFORMANCE` - Performance
+        * `DISCIPLINARY` - Disciplinary
+        * `ACHIEVEMENT` - Achievement
+        * `TRAINING` - Training
+    PaginatedAttendancePolicyList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttendancePolicy'
+    PaginatedAttendanceRecordListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttendanceRecordList'
+    PaginatedDepartmentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Department'
+    PaginatedEmployeeDocumentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeDocument'
+    PaginatedEmployeeListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeList'
+    PaginatedEmployeeNoteList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeNote'
+    PaginatedEmployeeProfileListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeProfileList'
+    PaginatedEmployeeScheduleList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeSchedule'
+    PaginatedHolidayList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Holiday'
+    PaginatedLeaveApplicationAttachmentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeaveApplicationAttachment'
+    PaginatedLeaveApplicationCommentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeaveApplicationComment'
+    PaginatedLeaveApplicationListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeaveApplicationList'
+    PaginatedLeaveBalanceList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeaveBalance'
+    PaginatedLeaveTypeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeaveType'
+    PaginatedPositionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Position'
+    PaginatedWorkScheduleList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkSchedule'
+    PatchedAttendanceRecordDetailRequest:
+      type: object
+      description: Detailed serializer for attendance records
+      properties:
+        date:
+          type: string
+          format: date
+        check_in_time:
+          type: string
+          format: date-time
+          nullable: true
+        check_out_time:
+          type: string
+          format: date-time
+          nullable: true
+        total_break_duration:
+          type: string
+        break_sessions_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        status:
+          $ref: '#/components/schemas/Status7ccEnum'
+        is_late:
+          type: boolean
+        is_early_departure:
+          type: boolean
+        scheduled_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,2})?$
+        check_in_location:
+          type: string
+          maxLength: 200
+        check_out_location:
+          type: string
+          maxLength: 200
+        notes:
+          type: string
+    PatchedDepartmentRequest:
+      type: object
+      description: Serializer for department management
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+    PatchedEmployeeDocumentRequest:
+      type: object
+      description: Serializer for employee documents
+      properties:
+        document_type:
+          $ref: '#/components/schemas/DocumentTypeEnum'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        file_path:
+          type: string
+          minLength: 1
+          maxLength: 500
+    PatchedEmployeeNoteRequest:
+      type: object
+      description: Serializer for employee notes
+      properties:
+        note:
+          type: string
+          minLength: 1
+        note_type:
+          $ref: '#/components/schemas/NoteTypeEnum'
+        is_confidential:
+          type: boolean
+    PatchedEmployeeProfileDetailRequest:
+      type: object
+      description: Detailed serializer for employee profile
+      properties:
+        position_id:
+          type: integer
+          writeOnly: true
+          nullable: true
+        supervisor_id:
+          type: integer
+          writeOnly: true
+          nullable: true
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        gender:
+          oneOf:
+          - $ref: '#/components/schemas/GenderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        emergency_contact_name:
+          type: string
+          maxLength: 100
+        emergency_contact_phone:
+          type: string
+          maxLength: 15
+        address:
+          type: string
+        salary:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        employment_type:
+          $ref: '#/components/schemas/EmploymentTypeEnum'
+        status:
+          $ref: '#/components/schemas/Status642Enum'
+        termination_date:
+          type: string
+          format: date
+          nullable: true
+    PatchedLeaveApplicationDetailRequest:
+      type: object
+      description: Detailed serializer for leave applications
+      properties:
+        leave_type_id:
+          type: integer
+          writeOnly: true
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        total_days:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,1})?$
+        reason:
+          type: string
+          minLength: 1
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+        contact_number:
+          type: string
+          maxLength: 15
+        emergency_contact:
+          type: string
+          maxLength: 100
+        status:
+          $ref: '#/components/schemas/StatusD95Enum'
+        approval_comments:
+          type: string
+        is_half_day:
+          type: boolean
+        replacement_employee_id:
+          type: integer
+          writeOnly: true
+          nullable: true
+    PatchedLeaveTypeRequest:
+      type: object
+      description: Serializer for leave types
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        description:
+          type: string
+        max_days_per_year:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Maximum days allowed per year for this leave type
+        requires_approval:
+          type: boolean
+          description: Whether this leave type requires HR approval
+        advance_notice_days:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Minimum days of advance notice required
+        is_active:
+          type: boolean
+    PatchedPositionRequest:
+      type: object
+      description: Serializer for job positions
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+        level:
+          $ref: '#/components/schemas/LevelEnum'
+    PatchedUserRequest:
+      type: object
+      description: Serializer for user profile information
+      properties:
+        username:
+          type: string
+          minLength: 1
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        employee_id:
+          type: string
+          nullable: true
+          maxLength: 20
+        department:
+          type: string
+          nullable: true
+          maxLength: 100
+        phone_number:
+          type: string
+          nullable: true
+          maxLength: 50
+        hire_date:
+          type: string
+          format: date
+          nullable: true
+        is_active:
+          type: boolean
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+    Position:
+      type: object
+      description: Serializer for job positions
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        level:
+          $ref: '#/components/schemas/LevelEnum'
+        level_display:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - level_display
+      - title
+    PositionRequest:
+      type: object
+      description: Serializer for job positions
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+        level:
+          $ref: '#/components/schemas/LevelEnum'
+      required:
+      - title
+    PriorityEnum:
+      enum:
+      - LOW
+      - MEDIUM
+      - HIGH
+      - URGENT
+      type: string
+      description: |-
+        * `LOW` - Low
+        * `MEDIUM` - Medium
+        * `HIGH` - High
+        * `URGENT` - Urgent
+    RoleEnum:
+      enum:
+      - EMPLOYEE
+      - HR
+      type: string
+      description: |-
+        * `EMPLOYEE` - Employee
+        * `HR` - HR
+    Status642Enum:
+      enum:
+      - ACTIVE
+      - ON_LEAVE
+      - TERMINATED
+      - RESIGNED
+      type: string
+      description: |-
+        * `ACTIVE` - Active
+        * `ON_LEAVE` - On Leave
+        * `TERMINATED` - Terminated
+        * `RESIGNED` - Resigned
+    Status7ccEnum:
+      enum:
+      - PRESENT
+      - ABSENT
+      - LATE
+      - HALF_DAY
+      - ON_LEAVE
+      - HOLIDAY
+      type: string
+      description: |-
+        * `PRESENT` - Present
+        * `ABSENT` - Absent
+        * `LATE` - Late
+        * `HALF_DAY` - Half Day
+        * `ON_LEAVE` - On Leave
+        * `HOLIDAY` - Holiday
+    StatusD95Enum:
+      enum:
+      - PENDING
+      - APPROVED
+      - REJECTED
+      - CANCELLED
+      type: string
+      description: |-
+        * `PENDING` - Pending
+        * `APPROVED` - Approved
+        * `REJECTED` - Rejected
+        * `CANCELLED` - Cancelled
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    User:
+      type: object
+      description: Serializer for user profile information
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        employee_id:
+          type: string
+          nullable: true
+          maxLength: 20
+        department:
+          type: string
+          nullable: true
+          maxLength: 100
+        phone_number:
+          type: string
+          nullable: true
+          maxLength: 50
+        hire_date:
+          type: string
+          format: date
+          nullable: true
+        is_active:
+          type: boolean
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+        last_login:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - date_joined
+      - id
+      - last_login
+      - username
+    UserRequest:
+      type: object
+      description: Serializer for user profile information
+      properties:
+        username:
+          type: string
+          minLength: 1
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        employee_id:
+          type: string
+          nullable: true
+          maxLength: 20
+        department:
+          type: string
+          nullable: true
+          maxLength: 100
+        phone_number:
+          type: string
+          nullable: true
+          maxLength: 50
+        hire_date:
+          type: string
+          format: date
+          nullable: true
+        is_active:
+          type: boolean
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - password
+      - username
+    WorkSchedule:
+      type: object
+      description: Serializer for work schedules
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+        description:
+          type: string
+        start_time:
+          type: string
+          format: time
+        end_time:
+          type: string
+          format: time
+        break_duration_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        max_break_sessions:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        late_grace_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        early_departure_grace_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        monday:
+          type: boolean
+        tuesday:
+          type: boolean
+        wednesday:
+          type: boolean
+        thursday:
+          type: boolean
+        friday:
+          type: boolean
+        saturday:
+          type: boolean
+        sunday:
+          type: boolean
+        work_duration_hours:
+          type: string
+          readOnly: true
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - end_time
+      - id
+      - name
+      - start_time
+      - work_duration_hours
+    WorkScheduleRequest:
+      type: object
+      description: Serializer for work schedules
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        description:
+          type: string
+        start_time:
+          type: string
+          format: time
+        end_time:
+          type: string
+          format: time
+        break_duration_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        max_break_sessions:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        late_grace_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        early_departure_grace_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        monday:
+          type: boolean
+        tuesday:
+          type: boolean
+        wednesday:
+          type: boolean
+        thursday:
+          type: boolean
+        friday:
+          type: boolean
+        saturday:
+          type: boolean
+        sunday:
+          type: boolean
+        is_active:
+          type: boolean
+      required:
+      - end_time
+      - name
+      - start_time
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
