@@ -144,33 +144,38 @@ class CheckInSerializer(serializers.Serializer):
     notes = serializers.CharField(max_length=500, required=False, allow_blank=True)
     
     def create(self, validated_data):
+        from decimal import Decimal
+        
         employee = self.context['request'].user
         today = date.today()
         location = validated_data.get('location', '')
         notes = validated_data.get('notes', '')
         
-        # Check if already checked in today
-        attendance, created = AttendanceRecord.objects.get_or_create(
-            employee=employee,
-            date=today,
-            defaults={
-                'check_in_time': timezone.now(),
-                'check_in_location': location,
-                'notes': notes,
-                'scheduled_hours': 8.0,  # Default, can be customized
-            }
-        )
-        
-        if not created and attendance.check_in_time:
-            raise serializers.ValidationError('Already checked in today.')
-        
-        if not created:
-            attendance.check_in_time = timezone.now()
-            attendance.check_in_location = location
-            attendance.notes = notes
-            attendance.save()
-        
-        return attendance
+        try:
+            # Check if already checked in today
+            attendance, created = AttendanceRecord.objects.get_or_create(
+                employee=employee,
+                date=today,
+                defaults={
+                    'check_in_time': timezone.now(),
+                    'check_in_location': location,
+                    'notes': notes,
+                    'scheduled_hours': Decimal('8.0'),  # Default, can be customized
+                }
+            )
+            
+            if not created and attendance.check_in_time:
+                raise serializers.ValidationError('Already checked in today.')
+            
+            if not created:
+                attendance.check_in_time = timezone.now()
+                attendance.check_in_location = location
+                attendance.notes = notes
+                attendance.save()
+            
+            return attendance
+        except Exception as e:
+            raise serializers.ValidationError(f'Check-in failed: {str(e)}')
 
 class CheckOutSerializer(serializers.Serializer):
     """Serializer for employee check-out"""
@@ -201,7 +206,11 @@ class CheckOutSerializer(serializers.Serializer):
         attendance.check_out_location = location
         if notes:
             attendance.notes = f"{attendance.notes}\n{notes}" if attendance.notes else notes
-        attendance.save()
+        
+        try:
+            attendance.save()
+        except Exception as e:
+            raise serializers.ValidationError(f'Check-out failed: {str(e)}')
         
         return attendance
 

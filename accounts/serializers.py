@@ -1,25 +1,35 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
-from .models import CustomUser, Department
+from .models import CustomUser, Department, UserDocument
 
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for user profile information"""
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True, required=False)
+    profile_photo_url = serializers.SerializerMethodField()
     
     class Meta:
         model = CustomUser
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name', 
             'role', 'employee_id', 'department', 'phone_number', 
-            'hire_date', 'is_active', 'date_joined', 'last_login', 'password'
+            'hire_date', 'is_active', 'date_joined', 'last_login', 'password',
+            'profile_photo', 'profile_photo_url', 'date_of_birth', 'address',
+            'emergency_contact_name', 'emergency_contact_phone', 'bio'
         ]
         extra_kwargs = {
             'password': {'write_only': True},
             'date_joined': {'read_only': True},
             'last_login': {'read_only': True},
         }
+    
+    def get_profile_photo_url(self, obj):
+        if obj.profile_photo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.profile_photo.url)
+        return None
     
     def create(self, validated_data):
         password = validated_data.pop('password')
@@ -154,6 +164,26 @@ class ChangePasswordSerializer(serializers.Serializer):
         if not user.check_password(value):
             raise serializers.ValidationError("Old password is incorrect.")
         return value
+
+
+class UserDocumentSerializer(serializers.ModelSerializer):
+    """Serializer for user documents"""
+    document_file_url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = UserDocument
+        fields = [
+            'id', 'user', 'document_type', 'document_name', 
+            'document_file', 'document_file_url', 'description', 'uploaded_at'
+        ]
+        read_only_fields = ['id', 'uploaded_at', 'user']
+    
+    def get_document_file_url(self, obj):
+        if obj.document_file:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.document_file.url)
+        return None
 
 
 class DashboardStatsSerializer(serializers.Serializer):

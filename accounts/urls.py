@@ -11,6 +11,10 @@ urlpatterns = [
     
     # User management
     path('profile/', views.ProfileAPIView.as_view(), name='profile'),
+    path('profile/detail/', views.ProfileDetailAPIView.as_view(), name='profile_detail'),
+    path('profile/update/', views.ProfileUpdateAPIView.as_view(), name='profile_update'),
+    path('profile/documents/', views.UserDocumentListCreateAPIView.as_view(), name='user_documents'),
+    path('profile/documents/<int:pk>/', views.UserDocumentDetailAPIView.as_view(), name='user_document_detail'),
     path('change-password/', views.ChangePasswordAPIView.as_view(), name='change_password'),
     path('user-info/', views.user_info, name='user_info'),
     

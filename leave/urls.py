@@ -25,4 +25,10 @@ urlpatterns = [
     path('statistics/', views.leave_statistics, name='leave-statistics'),
     path('my-summary/', views.my_leave_summary, name='my-leave-summary'),
     path('bulk-approve/', views.bulk_approve_leaves, name='bulk-approve-leaves'),
+    
+    # Advanced Reports and Analytics
+    path('reports/employee/', views.employee_leave_report, name='employee_leave_report'),
+    path('reports/team/', views.team_leave_report, name='team_leave_report'),
+    path('reports/analytics/', views.leave_analytics, name='leave_analytics'),
+    path('reports/performance/', views.combined_performance_report, name='combined_performance_report'),
 ]

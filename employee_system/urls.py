@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -64,7 +66,8 @@ def api_root(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', api_root, name='root'),
-    path('api/docs/', api_root, name='api_root'),
+    path('api/', api_root, name='api_root'),  # API root at /api/
+    path('api/docs/', api_root, name='api_docs'),
     # API Schema and Documentation URLs
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/schema/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
@@ -75,3 +78,7 @@ urlpatterns = [
     path('api/leave-management/', include('leave.urls')),
     path('api/attendance-management/', include('attendance.urls')),
 ]
+
+# Serve media files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

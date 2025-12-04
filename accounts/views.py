@@ -3,15 +3,16 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.parsers import MultiPartParser, FormParser
 from django.contrib.auth import authenticate
 from django.db.models import Q, Count
 from datetime import datetime, timedelta
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
 from drf_spectacular.openapi import OpenApiTypes
-from .models import CustomUser, Department
+from .models import CustomUser, Department, UserDocument
 from .serializers import (
     UserSerializer, LoginSerializer, RegisterSerializer, LogoutSerializer, EmployeeListSerializer, 
-    DepartmentSerializer, ChangePasswordSerializer, DashboardStatsSerializer
+    DepartmentSerializer, ChangePasswordSerializer, DashboardStatsSerializer, UserDocumentSerializer
 )
 
 
@@ -69,6 +70,7 @@ class LoginAPIView(APIView):
         tags=["Authentication"]
     )
     def post(self, request):
+        print(f"Login attempt - Request data: {request.data}")
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data['user']
@@ -81,6 +83,7 @@ class LoginAPIView(APIView):
                     'access': str(refresh.access_token),
                 }
             })
+        print(f"Login validation errors: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -364,3 +367,53 @@ def employee_stats(request):
         )
     }
     return Response(stats)
+
+
+class ProfileDetailAPIView(generics.RetrieveAPIView):
+    """API view to retrieve current user's profile"""
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_object(self):
+        return self.request.user
+
+
+class ProfileUpdateAPIView(generics.UpdateAPIView):
+    """API view to update current user's profile"""
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+    
+    def get_object(self):
+        return self.request.user
+    
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+
+class UserDocumentListCreateAPIView(generics.ListCreateAPIView):
+    """API view to list and create user documents"""
+    serializer_class = UserDocumentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+    
+    def get_queryset(self):
+        return UserDocument.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class UserDocumentDetailAPIView(generics.RetrieveDestroyAPIView):
+    """API view to retrieve or delete a specific user document"""
+    serializer_class = UserDocumentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        return UserDocument.objects.filter(user=self.request.user)
+

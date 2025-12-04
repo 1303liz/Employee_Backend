@@ -164,13 +164,15 @@ class AttendanceRecord(models.Model):
             self.overtime_hours = 0
     
     def save(self, *args, **kwargs):
+        from decimal import Decimal
+        
         self.calculate_hours()
         
         # Determine status based on times
         if self.check_in_time and not self.check_out_time:
             self.status = 'PRESENT'
         elif self.check_in_time and self.check_out_time:
-            if self.actual_hours < (self.scheduled_hours * 0.5):
+            if self.actual_hours < (self.scheduled_hours * Decimal('0.5')):
                 self.status = 'HALF_DAY'
             else:
                 self.status = 'PRESENT'

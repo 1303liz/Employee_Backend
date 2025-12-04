@@ -442,3 +442,284 @@ def my_attendance_summary(request):
     }
     
     return Response(summary)
+
+# Reports and Analytics
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def employee_attendance_report(request):
+    """Generate detailed attendance report for an employee"""
+    employee_id = request.query_params.get('employee_id')
+    start_date = request.query_params.get('start_date')
+    end_date = request.query_params.get('end_date')
+    
+    # If no employee_id provided, use current user
+    if not employee_id:
+        employee = request.user
+    else:
+        # Only HR can view other employees' reports
+        if request.user.role != 'HR':
+            return Response(
+                {'error': 'You can only view your own attendance report'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        employee = get_object_or_404(User, id=employee_id)
+    
+    # Default to last 30 days if no dates provided
+    if not end_date:
+        end_date = date.today()
+    else:
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+    
+    if not start_date:
+        start_date = end_date - timedelta(days=30)
+    else:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    
+    # Get attendance records
+    records = AttendanceRecord.objects.filter(
+        employee=employee,
+        date__gte=start_date,
+        date__lte=end_date
+    ).order_by('-date')
+    
+    # Calculate statistics
+    total_days = (end_date - start_date).days + 1
+    present_count = records.filter(status__in=['PRESENT', 'HALF_DAY']).count()
+    absent_count = records.filter(status='ABSENT').count()
+    late_count = records.filter(status='LATE').count()
+    half_day_count = records.filter(status='HALF_DAY').count()
+    
+    # Hours statistics
+    hours_stats = records.aggregate(
+        total_hours=Sum('actual_hours'),
+        total_overtime=Sum('overtime_hours'),
+        avg_hours=Avg('actual_hours')
+    )
+    
+    # Break statistics
+    breaks = BreakRecord.objects.filter(
+        attendance__employee=employee,
+        attendance__date__gte=start_date,
+        attendance__date__lte=end_date
+    )
+    break_stats = breaks.aggregate(
+        total_breaks=Count('id'),
+        total_break_time=Sum('duration')
+    )
+    
+    # On-time vs late arrivals
+    on_time_count = present_count - late_count
+    
+    report = {
+        'employee': {
+            'id': employee.id,
+            'username': employee.username,
+            'email': employee.email,
+            'full_name': f"{employee.first_name} {employee.last_name}",
+            'role': employee.role,
+        },
+        'period': {
+            'start_date': start_date,
+            'end_date': end_date,
+            'total_days': total_days,
+        },
+        'attendance_summary': {
+            'present_days': present_count,
+            'absent_days': absent_count,
+            'late_days': late_count,
+            'half_days': half_day_count,
+            'on_time_days': on_time_count,
+            'attendance_rate': round((present_count / total_days * 100), 2) if total_days > 0 else 0,
+            'punctuality_rate': round((on_time_count / present_count * 100), 2) if present_count > 0 else 0,
+        },
+        'hours_summary': {
+            'total_hours_worked': round(hours_stats['total_hours'] or 0, 2),
+            'total_overtime': round(hours_stats['total_overtime'] or 0, 2),
+            'average_daily_hours': round(hours_stats['avg_hours'] or 0, 2),
+        },
+        'break_summary': {
+            'total_breaks_taken': break_stats['total_breaks'],
+            'total_break_duration': round(break_stats['total_break_time'] or 0, 2),
+            'average_break_duration': round((break_stats['total_break_time'] or 0) / break_stats['total_breaks'], 2) if break_stats['total_breaks'] > 0 else 0,
+        },
+        'performance_metrics': {
+            'consistency_score': round((present_count / total_days * 100), 2) if total_days > 0 else 0,
+            'reliability_score': round(((on_time_count + (present_count - late_count)) / total_days * 100), 2) if total_days > 0 else 0,
+        },
+        'detailed_records': AttendanceRecordListSerializer(records[:100], many=True, context={'request': request}).data,
+    }
+    
+    return Response(report)
+
+@api_view(['GET'])
+@permission_classes([IsHRPermission])
+def team_attendance_report(request):
+    """Generate attendance report for all employees (HR only)"""
+    start_date = request.query_params.get('start_date')
+    end_date = request.query_params.get('end_date')
+    department = request.query_params.get('department')
+    
+    # Default to last 30 days
+    if not end_date:
+        end_date = date.today()
+    else:
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+    
+    if not start_date:
+        start_date = end_date - timedelta(days=30)
+    else:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    
+    # Get employees
+    employees = User.objects.filter(role='EMPLOYEE', is_active=True)
+    if department:
+        employees = employees.filter(employee_profile__department__name=department)
+    
+    total_days = (end_date - start_date).days + 1
+    
+    # Generate report for each employee
+    team_data = []
+    for emp in employees:
+        records = AttendanceRecord.objects.filter(
+            employee=emp,
+            date__gte=start_date,
+            date__lte=end_date
+        )
+        
+        present_count = records.filter(status__in=['PRESENT', 'HALF_DAY']).count()
+        absent_count = records.filter(status='ABSENT').count()
+        late_count = records.filter(status='LATE').count()
+        
+        hours_stats = records.aggregate(
+            total_hours=Sum('actual_hours'),
+            total_overtime=Sum('overtime_hours')
+        )
+        
+        team_data.append({
+            'employee_id': emp.id,
+            'employee_name': f"{emp.first_name} {emp.last_name}",
+            'email': emp.email,
+            'department': emp.employee_profile.department.name if hasattr(emp, 'employee_profile') and emp.employee_profile.department else 'N/A',
+            'present_days': present_count,
+            'absent_days': absent_count,
+            'late_days': late_count,
+            'attendance_rate': round((present_count / total_days * 100), 2) if total_days > 0 else 0,
+            'total_hours': round(hours_stats['total_hours'] or 0, 2),
+            'overtime_hours': round(hours_stats['total_overtime'] or 0, 2),
+            'performance_score': round((present_count / total_days * 100) - (late_count / total_days * 10), 2) if total_days > 0 else 0,
+        })
+    
+    # Sort by performance score
+    team_data.sort(key=lambda x: x['performance_score'], reverse=True)
+    
+    # Calculate team averages
+    team_summary = {
+        'total_employees': len(team_data),
+        'average_attendance_rate': round(sum(e['attendance_rate'] for e in team_data) / len(team_data), 2) if team_data else 0,
+        'average_hours_worked': round(sum(e['total_hours'] for e in team_data) / len(team_data), 2) if team_data else 0,
+        'total_overtime_hours': round(sum(e['overtime_hours'] for e in team_data), 2),
+    }
+    
+    report = {
+        'period': {
+            'start_date': start_date,
+            'end_date': end_date,
+            'total_days': total_days,
+        },
+        'team_summary': team_summary,
+        'employee_details': team_data,
+    }
+    
+    return Response(report)
+
+@api_view(['GET'])
+@permission_classes([IsHRPermission])
+def attendance_analytics(request):
+    """Generate attendance analytics and insights (HR only)"""
+    start_date = request.query_params.get('start_date')
+    end_date = request.query_params.get('end_date')
+    
+    # Default to last 90 days
+    if not end_date:
+        end_date = date.today()
+    else:
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+    
+    if not start_date:
+        start_date = end_date - timedelta(days=90)
+    else:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    
+    records = AttendanceRecord.objects.filter(
+        date__gte=start_date,
+        date__lte=end_date
+    )
+    
+    # Status distribution
+    status_distribution = records.values('status').annotate(
+        count=Count('id')
+    ).order_by('-count')
+    
+    # Daily trends
+    daily_stats = records.values('date').annotate(
+        present=Count('id', filter=Q(status__in=['PRESENT', 'HALF_DAY'])),
+        absent=Count('id', filter=Q(status='ABSENT')),
+        late=Count('id', filter=Q(status='LATE'))
+    ).order_by('date')
+    
+    # Department-wise stats
+    dept_stats = []
+    from employees.models import Department
+    departments = Department.objects.all()
+    
+    for dept in departments:
+        dept_records = records.filter(employee__employee_profile__department=dept)
+        dept_present = dept_records.filter(status__in=['PRESENT', 'HALF_DAY']).count()
+        dept_total = dept_records.count()
+        
+        dept_stats.append({
+            'department': dept.name,
+            'total_records': dept_total,
+            'present_count': dept_present,
+            'attendance_rate': round((dept_present / dept_total * 100), 2) if dept_total > 0 else 0,
+        })
+    
+    # Top performers
+    from django.db.models import F, ExpressionWrapper, DecimalField
+    top_performers = User.objects.filter(
+        role='EMPLOYEE',
+        attendance_records__date__gte=start_date,
+        attendance_records__date__lte=end_date
+    ).annotate(
+        present_days=Count('attendance_records', filter=Q(attendance_records__status__in=['PRESENT', 'HALF_DAY'])),
+        total_records=Count('attendance_records')
+    ).annotate(
+        attendance_rate=ExpressionWrapper(
+            F('present_days') * 100.0 / F('total_records'),
+            output_field=DecimalField(max_digits=5, decimal_places=2)
+        )
+    ).filter(total_records__gt=10).order_by('-attendance_rate')[:10]
+    
+    top_performers_data = [{
+        'employee_name': f"{emp.first_name} {emp.last_name}",
+        'attendance_rate': float(emp.attendance_rate) if emp.attendance_rate else 0,
+        'present_days': emp.present_days,
+    } for emp in top_performers]
+    
+    analytics = {
+        'period': {
+            'start_date': start_date,
+            'end_date': end_date,
+        },
+        'overview': {
+            'total_records': records.count(),
+            'unique_employees': records.values('employee').distinct().count(),
+        },
+        'status_distribution': list(status_distribution),
+        'daily_trends': list(daily_stats)[-30:],  # Last 30 days
+        'department_analysis': dept_stats,
+        'top_performers': top_performers_data,
+    }
+    
+    return Response(analytics)

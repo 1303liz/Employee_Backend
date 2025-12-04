@@ -28,4 +28,9 @@ urlpatterns = [
     # Reports and Statistics (HR Only)
     path('statistics/', views.attendance_statistics, name='attendance_statistics'),
     path('reports/generate/', views.generate_attendance_report, name='generate_report'),
+    
+    # Advanced Reports and Analytics
+    path('reports/employee/', views.employee_attendance_report, name='employee_attendance_report'),
+    path('reports/team/', views.team_attendance_report, name='team_attendance_report'),
+    path('reports/analytics/', views.attendance_analytics, name='attendance_analytics'),
 ]

@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from accounts.models import Department
+from leave.models import LeaveType
 from datetime import date
 
 User = get_user_model()
@@ -115,6 +116,68 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(f'Created employee: {emp_data["username"]}/emp123456'))
             else:
                 self.stdout.write(f'Employee already exists: {emp_data["username"]}')
+
+        # Create leave types
+        leave_types = [
+            {
+                'name': 'Annual Leave',
+                'description': 'Regular annual vacation leave',
+                'max_days_per_year': 20,
+                'requires_approval': True,
+                'advance_notice_days': 7
+            },
+            {
+                'name': 'Sick Leave',
+                'description': 'Leave for medical reasons',
+                'max_days_per_year': 15,
+                'requires_approval': True,
+                'advance_notice_days': 1
+            },
+            {
+                'name': 'Casual Leave',
+                'description': 'Short-term personal leave',
+                'max_days_per_year': 10,
+                'requires_approval': True,
+                'advance_notice_days': 2
+            },
+            {
+                'name': 'Maternity Leave',
+                'description': 'Leave for maternity purposes',
+                'max_days_per_year': 90,
+                'requires_approval': True,
+                'advance_notice_days': 30
+            },
+            {
+                'name': 'Paternity Leave',
+                'description': 'Leave for paternity purposes',
+                'max_days_per_year': 14,
+                'requires_approval': True,
+                'advance_notice_days': 14
+            },
+            {
+                'name': 'Bereavement Leave',
+                'description': 'Leave for family emergencies',
+                'max_days_per_year': 5,
+                'requires_approval': True,
+                'advance_notice_days': 0
+            },
+        ]
+
+        for leave_data in leave_types:
+            leave_type, created = LeaveType.objects.get_or_create(
+                name=leave_data['name'],
+                defaults={
+                    'description': leave_data['description'],
+                    'max_days_per_year': leave_data['max_days_per_year'],
+                    'requires_approval': leave_data['requires_approval'],
+                    'advance_notice_days': leave_data['advance_notice_days'],
+                    'is_active': True
+                }
+            )
+            if created:
+                self.stdout.write(f'Created leave type: {leave_type.name}')
+            else:
+                self.stdout.write(f'Leave type already exists: {leave_type.name}')
 
         self.stdout.write(self.style.SUCCESS('\nDemo data creation complete!'))
         self.stdout.write('\nDemo login credentials:')
