@@ -61,7 +61,36 @@ class EmployeeListCreateAPIView(generics.ListCreateAPIView):
         return EmployeeProfileListSerializer
     
     def perform_create(self, serializer):
+        print(f"Creating employee with data: {self.request.data}")
         serializer.save()
+        
+    def create(self, request, *args, **kwargs):
+        print(f"Received POST request to create employee")
+        print(f"Request data: {request.data}")
+        serializer = self.get_serializer(data=request.data)
+        print(f"Validating data...")
+        if not serializer.is_valid():
+            print(f"Validation errors: {serializer.errors}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        print(f"Data is valid, creating employee...")
+        self.perform_create(serializer)
+        
+        # Get the created instance and add email info to response
+        response_data = serializer.data
+        instance = serializer.instance
+        
+        # Include email status in response
+        if hasattr(instance, '_email_sent'):
+            response_data['email_sent'] = instance._email_sent
+            response_data['temporary_password'] = instance._temporary_password
+            if instance._email_sent:
+                response_data['message'] = f"Employee created successfully. Login credentials have been sent to {instance.user.email}"
+            else:
+                response_data['message'] = "Employee created successfully, but email could not be sent. Please provide credentials manually."
+        
+        headers = self.get_success_headers(response_data)
+        return Response(response_data, status=status.HTTP_201_CREATED, headers=headers)
 
 class EmployeeDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     """Retrieve, update or delete employee (HR only)"""
@@ -72,6 +101,14 @@ class EmployeeDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     def destroy(self, request, *args, **kwargs):
         """Soft delete - deactivate employee instead of hard delete"""
         employee = self.get_object()
+        
+        # Prevent HR from deleting themselves
+        if employee.user == request.user:
+            return Response({
+                'error': 'You cannot delete your own account. Please contact another HR manager.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Soft delete: deactivate instead of hard delete
         employee.status = 'TERMINATED'
         employee.user.is_active = False
         employee.save()
@@ -254,3 +291,58 @@ def bulk_update_employees(request):
         'message': f'Successfully updated {updated_count} employees',
         'updated_count': updated_count
     })
+
+
+@api_view(['POST'])
+@permission_classes([IsHRPermission])
+def resend_employee_credentials(request, employee_id):
+    """Resend login credentials email to an employee"""
+    from .email_utils import send_temporary_password_email
+    import secrets
+    import string
+    
+    try:
+        employee_profile = EmployeeProfile.objects.select_related('user').get(id=employee_id)
+        user = employee_profile.user
+        
+        # Check if user must change password (meaning they haven't logged in yet)
+        if not user.must_change_password:
+            return Response({
+                'error': 'Employee has already changed their password. Cannot resend temporary credentials.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Generate new temporary password
+        alphabet = string.ascii_letters + string.digits + '@#$%'
+        new_password = ''.join(secrets.choice(alphabet) for i in range(12))
+        
+        # Update user password
+        user.set_password(new_password)
+        user.must_change_password = True
+        user.save()
+        
+        # Send email
+        employee_full_name = f"{user.first_name} {user.last_name}"
+        email_sent = send_temporary_password_email(
+            employee_email=user.email,
+            employee_name=employee_full_name,
+            username=user.username,
+            temporary_password=new_password
+        )
+        
+        if email_sent:
+            return Response({
+                'success': True,
+                'message': f'Login credentials have been sent to {user.email}',
+                'email': user.email,
+                'temporary_password': new_password
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'Failed to send email. Please share credentials manually.',
+                'email': user.email,
+                'temporary_password': new_password
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+    except EmployeeProfile.DoesNotExist:
+        return Response({'error': 'Employee not found'}, status=status.HTTP_404_NOT_FOUND)

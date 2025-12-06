@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import EmployeeProfile, Position, EmployeeDocument, EmployeeNote
 from accounts.serializers import UserSerializer
+from .email_utils import send_temporary_password_email
 
 User = get_user_model()
 
@@ -127,11 +128,13 @@ class EmployeeProfileListSerializer(serializers.ModelSerializer):
 class EmployeeCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating new employee with user account"""
     # User fields
-    username = serializers.CharField()
-    email = serializers.EmailField()
+    username = serializers.CharField(write_only=True)
+    email = serializers.EmailField(write_only=True)
     password = serializers.CharField(write_only=True, min_length=8)
-    first_name = serializers.CharField()
-    last_name = serializers.CharField()
+    first_name = serializers.CharField(write_only=True)
+    last_name = serializers.CharField(write_only=True)
+    department = serializers.CharField(required=False, allow_blank=True, write_only=True)
+    phone_number = serializers.CharField(required=False, allow_blank=True, write_only=True)
     
     # Employee profile fields
     position_id = serializers.IntegerField(required=False, allow_null=True)
@@ -140,11 +143,13 @@ class EmployeeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmployeeProfile
         fields = [
-            'username', 'email', 'password', 'first_name', 'last_name',
-            'position_id', 'supervisor_id', 'date_of_birth', 'gender',
-            'emergency_contact_name', 'emergency_contact_phone', 'address',
-            'salary', 'employment_type', 'status'
+            'id', 'username', 'email', 'password', 'first_name', 'last_name',
+            'department', 'phone_number', 'position_id', 'supervisor_id', 
+            'date_of_birth', 'gender', 'emergency_contact_name', 
+            'emergency_contact_phone', 'address', 'salary', 
+            'employment_type', 'status'
         ]
+        read_only_fields = ['id']
     
     def validate_username(self, value):
         if User.objects.filter(username=value).exists():
@@ -156,6 +161,18 @@ class EmployeeCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Email already exists.")
         return value
     
+    def to_representation(self, instance):
+        """Convert the employee profile to a proper response format"""
+        data = EmployeeProfileDetailSerializer(instance).data
+        
+        # Add email status if available
+        if hasattr(instance, '_email_sent'):
+            data['email_sent'] = instance._email_sent
+        if hasattr(instance, '_temporary_password'):
+            data['temporary_password'] = instance._temporary_password
+        
+        return data
+    
     def create(self, validated_data):
         # Extract user data
         user_data = {
@@ -165,6 +182,13 @@ class EmployeeCreateSerializer(serializers.ModelSerializer):
             'last_name': validated_data.pop('last_name'),
             'role': 'EMPLOYEE'
         }
+        
+        # Extract optional user fields
+        if 'department' in validated_data:
+            user_data['department'] = validated_data.pop('department')
+        if 'phone_number' in validated_data:
+            user_data['phone_number'] = validated_data.pop('phone_number')
+            
         password = validated_data.pop('password')
         
         # Handle position and supervisor
@@ -174,6 +198,7 @@ class EmployeeCreateSerializer(serializers.ModelSerializer):
         # Create user
         user = User.objects.create_user(**user_data)
         user.set_password(password)
+        user.must_change_password = True  # Require password change on first login
         user.save()
         
         # Create employee profile
@@ -198,4 +223,18 @@ class EmployeeCreateSerializer(serializers.ModelSerializer):
                 pass
         
         employee_profile.save()
+        
+        # Send temporary password email
+        employee_full_name = f"{user.first_name} {user.last_name}"
+        email_sent = send_temporary_password_email(
+            employee_email=user.email,
+            employee_name=employee_full_name,
+            username=user.username,
+            temporary_password=password
+        )
+        
+        # Store email status in a custom attribute for the response
+        employee_profile._email_sent = email_sent
+        employee_profile._temporary_password = password
+        
         return employee_profile

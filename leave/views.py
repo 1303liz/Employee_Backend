@@ -936,3 +936,47 @@ def generate_recommendations(attendance_score, punctuality_score, late_days, abs
         })
     
     return recommendations
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def leave_ending_notifications(request):
+    """Get notifications for leaves ending in 2 days or less"""
+    user = request.user
+    today = date.today()
+    two_days_from_now = today + timedelta(days=2)
+    
+    # Get approved leaves that are ending in 2 days or less
+    upcoming_leave_endings = LeaveApplication.objects.filter(
+        employee=user,
+        status='APPROVED',
+        end_date__gte=today,  # Leave hasn't ended yet
+        end_date__lte=two_days_from_now  # Ending within 2 days
+    ).select_related('leave_type')
+    
+    notifications = []
+    for leave in upcoming_leave_endings:
+        days_remaining = (leave.end_date - today).days
+        
+        if days_remaining == 0:
+            message = f"Your {leave.leave_type.name} ends today. Please ensure you report to work tomorrow."
+        elif days_remaining == 1:
+            message = f"Your {leave.leave_type.name} ends tomorrow ({leave.end_date.strftime('%B %d, %Y')}). Please prepare to return to work."
+        else:
+            message = f"Your {leave.leave_type.name} ends in {days_remaining} days ({leave.end_date.strftime('%B %d, %Y')})."
+        
+        notifications.append({
+            'id': leave.id,
+            'leave_type': leave.leave_type.name,
+            'start_date': leave.start_date,
+            'end_date': leave.end_date,
+            'days_remaining': days_remaining,
+            'message': message,
+            'priority': 'high' if days_remaining <= 1 else 'medium'
+        })
+    
+    return Response({
+        'has_notifications': len(notifications) > 0,
+        'notification_count': len(notifications),
+        'notifications': notifications
+    })

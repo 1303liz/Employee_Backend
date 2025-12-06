@@ -6,7 +6,7 @@ from .models import CustomUser, Department, UserDocument
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for user profile information"""
-    password = serializers.CharField(write_only=True, required=False)
+    password = serializers.CharField(write_only=True, required=False, allow_blank=True)
     profile_photo_url = serializers.SerializerMethodField()
     
     class Meta:
@@ -16,10 +16,10 @@ class UserSerializer(serializers.ModelSerializer):
             'role', 'employee_id', 'department', 'phone_number', 
             'hire_date', 'is_active', 'date_joined', 'last_login', 'password',
             'profile_photo', 'profile_photo_url', 'date_of_birth', 'address',
-            'emergency_contact_name', 'emergency_contact_phone', 'bio'
+            'emergency_contact_name', 'emergency_contact_phone', 'bio', 'must_change_password'
         ]
         extra_kwargs = {
-            'password': {'write_only': True},
+            'password': {'write_only': True, 'required': False},
             'date_joined': {'read_only': True},
             'last_login': {'read_only': True},
         }
@@ -32,7 +32,9 @@ class UserSerializer(serializers.ModelSerializer):
         return None
     
     def create(self, validated_data):
-        password = validated_data.pop('password')
+        password = validated_data.pop('password', None)
+        if not password:
+            raise serializers.ValidationError({'password': 'Password is required for user creation'})
         user = CustomUser.objects.create_user(**validated_data)
         user.set_password(password)
         user.save()
@@ -40,11 +42,19 @@ class UserSerializer(serializers.ModelSerializer):
     
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
+        
+        # Update all fields except password
         for attr, value in validated_data.items():
+            # Convert empty strings to None for optional fields
+            if value == '' and attr in ['date_of_birth', 'address', 'emergency_contact_name', 
+                                         'emergency_contact_phone', 'bio', 'phone_number']:
+                value = None
             setattr(instance, attr, value)
         
+        # Only update password if provided
         if password:
             instance.set_password(password)
+            
         instance.save()
         return instance
 
@@ -82,13 +92,14 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = [
             'username', 'email', 'password', 'confirm_password',
-            'first_name', 'last_name', 'employee_id', 'department', 
+            'first_name', 'last_name', 'role', 'employee_id', 'department', 
             'phone_number', 'hire_date'
         ]
         extra_kwargs = {
             'email': {'required': True},
             'first_name': {'required': True},
             'last_name': {'required': True},
+            'role': {'required': False},
         }
     
     def validate(self, data):
@@ -164,6 +175,22 @@ class ChangePasswordSerializer(serializers.Serializer):
         if not user.check_password(value):
             raise serializers.ValidationError("Old password is incorrect.")
         return value
+
+
+class FirstTimePasswordChangeSerializer(serializers.Serializer):
+    """Serializer for first-time password change (no old password required)"""
+    new_password = serializers.CharField(required=True, min_length=8)
+    confirm_password = serializers.CharField(required=True)
+    
+    def validate(self, data):
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError("New passwords don't match.")
+        
+        user = self.context['request'].user
+        if not user.must_change_password:
+            raise serializers.ValidationError("Password change not required for this account.")
+        
+        return data
 
 
 class UserDocumentSerializer(serializers.ModelSerializer):

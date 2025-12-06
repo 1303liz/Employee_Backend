@@ -16,6 +16,7 @@ urlpatterns = [
     path('profile/documents/', views.UserDocumentListCreateAPIView.as_view(), name='user_documents'),
     path('profile/documents/<int:pk>/', views.UserDocumentDetailAPIView.as_view(), name='user_document_detail'),
     path('change-password/', views.ChangePasswordAPIView.as_view(), name='change_password'),
+    path('first-time-password-change/', views.FirstTimePasswordChangeAPIView.as_view(), name='first_time_password_change'),
     path('user-info/', views.user_info, name='user_info'),
     
     # Dashboard

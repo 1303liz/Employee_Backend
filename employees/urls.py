@@ -24,4 +24,7 @@ urlpatterns = [
     # Statistics and bulk operations
     path('statistics/', views.employee_statistics, name='employee-statistics'),
     path('bulk-update/', views.bulk_update_employees, name='bulk-update-employees'),
+    
+    # Resend credentials
+    path('<int:employee_id>/resend-credentials/', views.resend_employee_credentials, name='resend-employee-credentials'),
 ]

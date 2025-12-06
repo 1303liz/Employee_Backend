@@ -12,7 +12,8 @@ from drf_spectacular.openapi import OpenApiTypes
 from .models import CustomUser, Department, UserDocument
 from .serializers import (
     UserSerializer, LoginSerializer, RegisterSerializer, LogoutSerializer, EmployeeListSerializer, 
-    DepartmentSerializer, ChangePasswordSerializer, DashboardStatsSerializer, UserDocumentSerializer
+    DepartmentSerializer, ChangePasswordSerializer, FirstTimePasswordChangeSerializer, 
+    DashboardStatsSerializer, UserDocumentSerializer
 )
 
 
@@ -387,13 +388,26 @@ class ProfileUpdateAPIView(generics.UpdateAPIView):
     def get_object(self):
         return self.request.user
     
+    def get_serializer_context(self):
+        """Add request to serializer context"""
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+    
     def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
+        partial = True  # Always use partial update
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data)
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        
+        try:
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            
+            # Return fresh data with context
+            return Response(self.get_serializer(instance).data)
+        except Exception as e:
+            print(f"Profile update error: {str(e)}")
+            raise
 
 
 class UserDocumentListCreateAPIView(generics.ListCreateAPIView):
@@ -416,4 +430,28 @@ class UserDocumentDetailAPIView(generics.RetrieveDestroyAPIView):
     
     def get_queryset(self):
         return UserDocument.objects.filter(user=self.request.user)
+
+
+class FirstTimePasswordChangeAPIView(APIView):
+    """API view for first-time password change (temporary password)"""
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = FirstTimePasswordChangeSerializer
+    
+    def post(self, request):
+        serializer = FirstTimePasswordChangeSerializer(data=request.data, context={'request': request})
+        
+        if serializer.is_valid():
+            user = request.user
+            
+            # Set new password
+            user.set_password(serializer.validated_data['new_password'])
+            user.must_change_password = False
+            user.save()
+            
+            return Response({
+                'message': 'Password changed successfully. You can now use your new password.',
+                'must_change_password': False
+            }, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

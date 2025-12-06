@@ -23,6 +23,7 @@ class CustomUser(AbstractUser):
     department = models.CharField(max_length=100, null=True, blank=True)
     phone_number = models.CharField(max_length=50, null=True, blank=True)
     hire_date = models.DateField(null=True, blank=True)
+    must_change_password = models.BooleanField(default=False)
     
     # Profile information
     profile_photo = models.ImageField(upload_to=user_profile_photo_path, null=True, blank=True)
