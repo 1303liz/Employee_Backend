@@ -59,6 +59,12 @@ def api_root(request):
                 'records': '/api/attendance-management/records/',
                 'statistics': '/api/attendance-management/statistics/',
             },
+            'messaging': {
+                'messages': '/api/messaging/messages/',
+                'inbox': '/api/messaging/messages/inbox/',
+                'sent': '/api/messaging/messages/sent/',
+                'announcements': '/api/messaging/announcements/',
+            },
             'admin': '/admin/'
         }
     })
@@ -77,6 +83,7 @@ urlpatterns = [
     path('api/employee-management/', include('employees.urls')),
     path('api/leave-management/', include('leave.urls')),
     path('api/attendance-management/', include('attendance.urls')),
+    path('api/messaging/', include('messaging.urls')),
 ]
 
 # Serve media files in development

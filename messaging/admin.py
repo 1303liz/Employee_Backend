@@ -1,0 +1,20 @@
+from django.contrib import admin
+from .models import Message, Announcement
+
+
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ['sender', 'recipient', 'subject', 'is_read', 'created_at']
+    list_filter = ['is_read', 'created_at']
+    search_fields = ['sender__username', 'recipient__username', 'subject', 'body']
+    readonly_fields = ['created_at', 'read_at']
+    date_hierarchy = 'created_at'
+
+
+@admin.register(Announcement)
+class AnnouncementAdmin(admin.ModelAdmin):
+    list_display = ['title', 'sender', 'is_active', 'created_at']
+    list_filter = ['is_active', 'created_at']
+    search_fields = ['title', 'content', 'sender__username']
+    readonly_fields = ['created_at']
+    date_hierarchy = 'created_at'
