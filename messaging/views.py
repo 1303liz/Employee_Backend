@@ -87,14 +87,26 @@ class MessageViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def reply(self, request, pk=None):
-        """Reply to a message"""
+        """Reply to a message - intelligently determines recipient"""
         parent_message = self.get_object()
+        current_user = request.user
+        
+        # Determine the recipient: it should be "the other person" in the conversation
+        # If current user is the sender of the parent message, reply goes to the original recipient
+        # If current user is the recipient of the parent message, reply goes to the original sender
+        if parent_message.sender == current_user:
+            recipient = parent_message.recipient
+        else:
+            recipient = parent_message.sender
+        
+        # Get the root message to maintain subject continuity
+        root_message = parent_message if not parent_message.parent_message else parent_message.parent_message
         
         # Create reply message
         data = request.data.copy()
-        data['parent_message'] = parent_message.id
-        data['recipient'] = parent_message.sender.id
-        data['subject'] = f"Re: {parent_message.subject}"
+        data['parent_message'] = root_message.id  # Always link to root message
+        data['recipient'] = recipient.id
+        data['subject'] = f"Re: {root_message.subject}" if not root_message.subject.startswith('Re: ') else root_message.subject
         
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
@@ -110,9 +122,17 @@ class MessageViewSet(viewsets.ModelViewSet):
         # Get the root message (parent) if this is a reply
         root_message = message if not message.parent_message else message.parent_message
         
-        # Mark as read if user is recipient
+        # Mark root message as read if user is recipient
         if root_message.recipient == request.user:
             root_message.mark_as_read()
+        
+        # Mark all unread replies as read where user is recipient
+        unread_replies = root_message.replies.filter(
+            recipient=request.user,
+            is_read=False
+        )
+        for reply in unread_replies:
+            reply.mark_as_read()
         
         serializer = MessageThreadSerializer(root_message, context={'request': request})
         return Response(serializer.data)
@@ -139,18 +159,42 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         # HR can see all announcements, employees only see active ones
-        if user.role == 'HR':
-            return Announcement.objects.all().select_related('sender')
-        return Announcement.objects.filter(is_active=True).select_related('sender')
+        if hasattr(user, 'role') and user.role == 'HR':
+            return Announcement.objects.all().select_related('sender').order_by('-created_at')
+        return Announcement.objects.filter(is_active=True).select_related('sender').order_by('-created_at')
+
+    def list(self, request, *args, **kwargs):
+        """List announcements with proper pagination"""
+        queryset = self.get_queryset()
+        
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     def perform_create(self, serializer):
-        # Only HR can create announcements
-        if self.request.user.role != 'HR':
-            return Response(
-                {'error': 'Only HR can create announcements'},
-                status=status.HTTP_403_FORBIDDEN
-            )
+        """Only HR can create announcements"""
+        if not hasattr(self.request.user, 'role') or self.request.user.role != 'HR':
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('Only HR can create announcements')
+        serializer.save(sender=self.request.user)
+    
+    def perform_update(self, serializer):
+        """Only HR can update announcements"""
+        if not hasattr(self.request.user, 'role') or self.request.user.role != 'HR':
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('Only HR can update announcements')
         serializer.save()
+    
+    def perform_destroy(self, instance):
+        """Only HR can delete announcements"""
+        if not hasattr(self.request.user, 'role') or self.request.user.role != 'HR':
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('Only HR can delete announcements')
+        instance.delete()
 
     @action(detail=False, methods=['get'])
     def active(self, request):
@@ -158,6 +202,11 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
         announcements = Announcement.objects.filter(
             is_active=True
         ).select_related('sender').order_by('-created_at')
+        
+        page = self.paginate_queryset(announcements)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         
         serializer = self.get_serializer(announcements, many=True)
         return Response(serializer.data)

@@ -153,6 +153,10 @@ class CheckInSerializer(serializers.Serializer):
         if latitude is None or longitude is None:
             raise serializers.ValidationError('Location coordinates are required for check-in.')
         
+        # Allow 0,0 as fallback for location unavailable
+        if latitude == 0 and longitude == 0:
+            return data
+        
         # Validate coordinate ranges
         if not (-90 <= latitude <= 90):
             raise serializers.ValidationError('Invalid latitude. Must be between -90 and 90.')
@@ -160,33 +164,35 @@ class CheckInSerializer(serializers.Serializer):
         if not (-180 <= longitude <= 180):
             raise serializers.ValidationError('Invalid longitude. Must be between -180 and 180.')
         
-        # Optional: Check if location is within allowed workplace radius
-        # This can be implemented with WORKPLACE_COORDINATES from settings
-        from django.conf import settings
-        if hasattr(settings, 'WORKPLACE_COORDINATES') and hasattr(settings, 'ALLOWED_RADIUS_METERS'):
-            from math import radians, sin, cos, sqrt, atan2
-            
-            workplace_lat = settings.WORKPLACE_COORDINATES['latitude']
-            workplace_lon = settings.WORKPLACE_COORDINATES['longitude']
-            allowed_radius = settings.ALLOWED_RADIUS_METERS
-            
-            # Calculate distance using Haversine formula
-            R = 6371000  # Earth's radius in meters
-            lat1, lon1 = radians(workplace_lat), radians(workplace_lon)
-            lat2, lon2 = radians(latitude), radians(longitude)
-            
-            dlat = lat2 - lat1
-            dlon = lon2 - lon1
-            
-            a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-            c = 2 * atan2(sqrt(a), sqrt(1-a))
-            distance = R * c
-            
-            if distance > allowed_radius:
-                raise serializers.ValidationError(
-                    f'You are {int(distance)} meters away from the workplace. '
-                    f'You must be within {allowed_radius} meters to check in.'
-                )
+        # Location validation disabled - just capture location without distance checking
+        # If you want to enable workplace radius checking in the future,
+        # uncomment the code below and configure WORKPLACE_COORDINATES in settings
+        
+        # from django.conf import settings
+        # if hasattr(settings, 'WORKPLACE_COORDINATES') and hasattr(settings, 'ALLOWED_RADIUS_METERS'):
+        #     from math import radians, sin, cos, sqrt, atan2
+        #     
+        #     workplace_lat = settings.WORKPLACE_COORDINATES['latitude']
+        #     workplace_lon = settings.WORKPLACE_COORDINATES['longitude']
+        #     allowed_radius = settings.ALLOWED_RADIUS_METERS
+        #     
+        #     # Calculate distance using Haversine formula
+        #     R = 6371000  # Earth's radius in meters
+        #     lat1, lon1 = radians(workplace_lat), radians(workplace_lon)
+        #     lat2, lon2 = radians(latitude), radians(longitude)
+        #     
+        #     dlat = lat2 - lat1
+        #     dlon = lon2 - lon1
+        #     
+        #     a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+        #     c = 2 * atan2(sqrt(a), sqrt(1-a))
+        #     distance = R * c
+        #     
+        #     if distance > allowed_radius:
+        #         raise serializers.ValidationError(
+        #             f'You are {int(distance)} meters away from the workplace. '
+        #             f'You must be within {allowed_radius} meters to check in.'
+        #         )
         
         return data
     
@@ -240,6 +246,10 @@ class CheckOutSerializer(serializers.Serializer):
         
         if latitude is None or longitude is None:
             raise serializers.ValidationError('Location coordinates are required for check-out.')
+        
+        # Allow 0,0 as fallback for location unavailable
+        if latitude == 0 and longitude == 0:
+            return data
         
         # Validate coordinate ranges
         if not (-90 <= latitude <= 90):

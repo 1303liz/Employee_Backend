@@ -72,6 +72,10 @@ class LoginSerializer(serializers.Serializer):
             user = authenticate(username=username, password=password)
             if user:
                 if user.is_active:
+                    # Update last_login timestamp
+                    from django.utils import timezone
+                    user.last_login = timezone.now()
+                    user.save(update_fields=['last_login'])
                     data['user'] = user
                 else:
                     raise serializers.ValidationError('User account is disabled.')
