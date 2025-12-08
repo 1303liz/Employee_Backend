@@ -609,7 +609,7 @@ def team_leave_report(request):
             'employee_id': emp.id,
             'employee_name': f"{emp.first_name} {emp.last_name}",
             'email': emp.email,
-            'department': emp.employee_profile.department.name if hasattr(emp, 'employee_profile') and emp.employee_profile.department else 'N/A',
+            'department': emp.employee_profile.department.name if hasattr(emp, 'employee_profile') and emp.employee_profile.department else 'Unassigned',
             'total_applications': applications.count(),
             'approved_applications': approved_apps.count(),
             'pending_applications': pending_apps.count(),
@@ -841,7 +841,7 @@ def combined_performance_report(request):
             'id': employee.id,
             'name': f"{employee.first_name} {employee.last_name}",
             'email': employee.email,
-            'department': employee.employee_profile.department.name if hasattr(employee, 'employee_profile') and employee.employee_profile.department else 'N/A',
+            'department': employee.employee_profile.department.name if hasattr(employee, 'employee_profile') and employee.employee_profile.department else 'Unassigned',
         },
         'period': {
             'year': year,
