@@ -166,18 +166,37 @@ class LeaveApplicationDetailSerializer(serializers.ModelSerializer):
 
 class LeaveApplicationListSerializer(serializers.ModelSerializer):
     """List serializer for leave applications"""
-    employee_name = serializers.CharField(source='employee.get_full_name', read_only=True)
-    leave_type_name = serializers.CharField(source='leave_type.name', read_only=True)
+    employee_name = serializers.SerializerMethodField()
+    employee_id = serializers.CharField(source='employee.employee_id', read_only=True)
+    employee_username = serializers.CharField(source='employee.username', read_only=True)
+    employee_email = serializers.CharField(source='employee.email', read_only=True)
+    leave_type_name = serializers.SerializerMethodField()
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     priority_display = serializers.CharField(source='get_priority_display', read_only=True)
     
     class Meta:
         model = LeaveApplication
         fields = [
-            'id', 'employee_name', 'leave_type_name', 'start_date', 'end_date',
+            'id', 'employee_name', 'employee_id', 'employee_username', 'employee_email',
+            'leave_type_name', 'start_date', 'end_date',
             'total_days', 'status', 'status_display', 'priority', 'priority_display',
             'applied_on', 'reason'
         ]
+    
+    def get_employee_name(self, obj):
+        """Get employee name with fallback to username"""
+        if obj.employee:
+            full_name = obj.employee.get_full_name()
+            if full_name and full_name.strip():
+                return full_name
+            return obj.employee.username
+        return "Unknown Employee"
+    
+    def get_leave_type_name(self, obj):
+        """Get leave type name with proper handling"""
+        if obj.leave_type:
+            return obj.leave_type.name
+        return "Leave type not set"
 
 class LeaveApplicationCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating leave applications"""

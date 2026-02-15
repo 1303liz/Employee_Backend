@@ -80,6 +80,3 @@ class AnnouncementSerializer(serializers.ModelSerializer):
         fields = ['id', 'sender', 'sender_details', 'title', 'content', 'priority', 'created_at', 'is_active']
         read_only_fields = ['sender', 'created_at']
 
-    def create(self, validated_data):
-        validated_data['sender'] = self.context['request'].user
-        return super().create(validated_data)

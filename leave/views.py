@@ -50,10 +50,10 @@ class LeaveApplicationListCreateAPIView(generics.ListCreateAPIView):
         user = self.request.user
         
         if user.is_hr:
-            # HR can see all applications
+            # HR can see all applications except their own
             queryset = LeaveApplication.objects.select_related(
                 'employee', 'leave_type', 'approved_by'
-            ).all()
+            ).exclude(employee=user)
         else:
             # Employees can only see their own applications
             queryset = LeaveApplication.objects.select_related(

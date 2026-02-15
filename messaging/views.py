@@ -25,10 +25,12 @@ class MessageViewSet(viewsets.ModelViewSet):
         return MessageSerializer
 
     def retrieve(self, request, *args, **kwargs):
-        """Retrieve a message and mark as read if user is recipient"""
+        """Retrieve a message without marking as read
+        
+        Use the /thread/ endpoint to mark messages as read when viewing.
+        This endpoint is for getting message details without affecting read status.
+        """
         instance = self.get_object()
-        if instance.recipient == request.user:
-            instance.mark_as_read()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
@@ -159,7 +161,8 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         # HR can see all announcements, employees only see active ones
-        if hasattr(user, 'role') and user.role == 'HR':
+        user_role = getattr(user, 'role', None)
+        if user_role == 'HR':
             return Announcement.objects.all().select_related('sender').order_by('-created_at')
         return Announcement.objects.filter(is_active=True).select_related('sender').order_by('-created_at')
 
@@ -177,23 +180,57 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """Only HR can create announcements"""
-        if not hasattr(self.request.user, 'role') or self.request.user.role != 'HR':
+        user = self.request.user
+        if not user.is_authenticated:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('Authentication required')
+        
+        # Check if user has HR role
+        user_role = getattr(user, 'role', None)
+        if user_role != 'HR':
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied('Only HR can create announcements')
-        serializer.save(sender=self.request.user)
+        
+        # Save the announcement
+        announcement = serializer.save(sender=user)
+        
+        # Send email notifications to all employees
+        from .email_utils import send_announcement_notification
+        try:
+            email_result = send_announcement_notification(announcement)
+            print(f"Email notification result: {email_result}")
+        except Exception as e:
+            # Log the error but don't fail the announcement creation
+            print(f"Error sending announcement emails: {str(e)}")
     
     def perform_update(self, serializer):
         """Only HR can update announcements"""
-        if not hasattr(self.request.user, 'role') or self.request.user.role != 'HR':
+        user = self.request.user
+        if not user.is_authenticated:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('Authentication required')
+        
+        # Check if user has HR role
+        user_role = getattr(user, 'role', None)
+        if user_role != 'HR':
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied('Only HR can update announcements')
+        
         serializer.save()
     
     def perform_destroy(self, instance):
         """Only HR can delete announcements"""
-        if not hasattr(self.request.user, 'role') or self.request.user.role != 'HR':
+        user = self.request.user
+        if not user.is_authenticated:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('Authentication required')
+        
+        # Check if user has HR role
+        user_role = getattr(user, 'role', None)
+        if user_role != 'HR':
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied('Only HR can delete announcements')
+        
         instance.delete()
 
     @action(detail=False, methods=['get'])

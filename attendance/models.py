@@ -146,25 +146,35 @@ class AttendanceRecord(models.Model):
     
     def calculate_hours(self):
         """Calculate actual working hours"""
+        from decimal import Decimal
+        
         if self.check_in_time and self.check_out_time:
             total_time = self.check_out_time - self.check_in_time
             working_time = total_time - self.total_break_duration
             
-            # Convert to hours
-            hours = working_time.total_seconds() / 3600
-            self.actual_hours = round(hours, 2)
+            # Convert to hours - ensure Decimal type throughout
+            hours = Decimal(str(working_time.total_seconds())) / Decimal('3600')
+            self.actual_hours = Decimal(str(round(float(hours), 2)))
+            
+            # Ensure scheduled_hours is a Decimal
+            if not isinstance(self.scheduled_hours, Decimal):
+                self.scheduled_hours = Decimal(str(self.scheduled_hours))
             
             # Calculate overtime (hours beyond scheduled)
             if self.actual_hours > self.scheduled_hours:
                 self.overtime_hours = self.actual_hours - self.scheduled_hours
             else:
-                self.overtime_hours = 0
+                self.overtime_hours = Decimal('0')
         else:
-            self.actual_hours = 0
-            self.overtime_hours = 0
+            self.actual_hours = Decimal('0')
+            self.overtime_hours = Decimal('0')
     
     def save(self, *args, **kwargs):
         from decimal import Decimal
+        
+        # Ensure scheduled_hours is Decimal before any calculations
+        if not isinstance(self.scheduled_hours, Decimal):
+            self.scheduled_hours = Decimal(str(self.scheduled_hours))
         
         self.calculate_hours()
         
@@ -172,6 +182,10 @@ class AttendanceRecord(models.Model):
         if self.check_in_time and not self.check_out_time:
             self.status = 'PRESENT'
         elif self.check_in_time and self.check_out_time:
+            # Ensure actual_hours is Decimal for comparison
+            if not isinstance(self.actual_hours, Decimal):
+                self.actual_hours = Decimal(str(self.actual_hours))
+            
             if self.actual_hours < (self.scheduled_hours * Decimal('0.5')):
                 self.status = 'HALF_DAY'
             else:

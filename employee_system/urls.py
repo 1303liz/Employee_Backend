@@ -16,8 +16,6 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.conf import settings
-from django.conf.urls.static import static
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -61,9 +59,9 @@ def api_root(request):
             },
             'messaging': {
                 'messages': '/api/messaging/messages/',
+                'announcements': '/api/messaging/announcements/',
                 'inbox': '/api/messaging/messages/inbox/',
                 'sent': '/api/messaging/messages/sent/',
-                'announcements': '/api/messaging/announcements/',
             },
             'admin': '/admin/'
         }
@@ -85,7 +83,3 @@ urlpatterns = [
     path('api/attendance-management/', include('attendance.urls')),
     path('api/messaging/', include('messaging.urls')),
 ]
-
-# Serve media files in development
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

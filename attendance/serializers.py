@@ -261,6 +261,8 @@ class CheckOutSerializer(serializers.Serializer):
         return data
     
     def create(self, validated_data):
+        from decimal import Decimal
+        
         employee = self.context['request'].user
         today = date.today()
         latitude = validated_data.get('latitude')
@@ -282,14 +284,22 @@ class CheckOutSerializer(serializers.Serializer):
         if attendance.check_out_time:
             raise serializers.ValidationError('Already checked out today.')
         
+        # Update check-out details
         attendance.check_out_time = timezone.now()
         attendance.check_out_location = location
         if notes:
             attendance.notes = f"{attendance.notes}\n{notes}" if attendance.notes else notes
         
+        # Ensure scheduled_hours is a Decimal
+        if not isinstance(attendance.scheduled_hours, Decimal):
+            attendance.scheduled_hours = Decimal(str(attendance.scheduled_hours))
+        
         try:
             attendance.save()
         except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"Check-out save error: {error_details}")
             raise serializers.ValidationError(f'Check-out failed: {str(e)}')
         
         return attendance
