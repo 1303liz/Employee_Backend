@@ -56,7 +56,8 @@ INSTALLED_APPS = [
     'employees',
     'leave',
     'attendance',
-    'messaging'
+    'messaging',
+    'ai_services'
 ]
 
 MIDDLEWARE = [
