@@ -7,8 +7,8 @@ This module contains the AI logic for:
 3. Smart Leave Recommendations
 """
 
-import pandas as pd
-import numpy as np
+# import pandas as pd
+# import numpy as np
 from datetime import date, datetime, timedelta
 from django.contrib.auth.models import User
 from django.db.models import Q, Avg, Count
@@ -83,7 +83,7 @@ class AttendancePredictionService:
     
     def _calculate_prediction_factors(self, employee: User, historical_data: List[Dict], prediction_date: date) -> Dict:
         """Calculate factors that influence attendance prediction"""
-        df = pd.DataFrame(historical_data)
+        # df = pd.DataFrame(historical_data)  # Temporarily commented out
         
         factors = {
             'historical_attendance_rate': 0.9,
@@ -94,10 +94,10 @@ class AttendancePredictionService:
             'workload_factor': 0.0
         }
         
-        if len(df) > 0:
-            # Overall attendance rate
-            present_count = len(df[df['status'].isin(['PRESENT', 'LATE'])])
-            factors['historical_attendance_rate'] = present_count / len(df)
+        if len(historical_data) > 0:
+            # Overall attendance rate using list comprehension instead of pandas
+            present_count = len([d for d in historical_data if d.get('status') in ['PRESENT', 'LATE']])
+            factors['historical_attendance_rate'] = present_count / len(historical_data)
             
             # Recent trend (last 2 weeks)
             recent_df = df.tail(14)

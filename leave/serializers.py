@@ -5,6 +5,7 @@ from .models import (
     LeaveType, LeaveBalance, LeaveApplication, 
     LeaveApplicationAttachment, LeaveApplicationComment
 )
+from .email_utils import send_leave_status_email
 from accounts.serializers import UserSerializer
 
 User = get_user_model()
@@ -180,7 +181,7 @@ class LeaveApplicationListSerializer(serializers.ModelSerializer):
             'id', 'employee_name', 'employee_id', 'employee_username', 'employee_email',
             'leave_type_name', 'start_date', 'end_date',
             'total_days', 'status', 'status_display', 'priority', 'priority_display',
-            'applied_on', 'reason'
+            'applied_on', 'reason', 'approval_comments', 'approved_on'
         ]
     
     def get_employee_name(self, obj):
@@ -269,6 +270,15 @@ class LeaveApplicationApprovalSerializer(serializers.ModelSerializer):
         if value not in ['APPROVED', 'REJECTED']:
             raise serializers.ValidationError('Status must be either APPROVED or REJECTED.')
         return value
+
+    def validate(self, attrs):
+        status_value = attrs.get('status')
+        approval_comments = (attrs.get('approval_comments') or '').strip()
+
+        if status_value == 'REJECTED' and not approval_comments:
+            raise serializers.ValidationError({'approval_comments': 'Rejection reason is required.'})
+
+        return attrs
     
     def update(self, instance, validated_data):
         from django.utils import timezone
@@ -282,4 +292,5 @@ class LeaveApplicationApprovalSerializer(serializers.ModelSerializer):
         instance._previous_status = 'PENDING'
         
         instance.save()
+        send_leave_status_email(instance)
         return instance

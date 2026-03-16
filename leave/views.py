@@ -18,6 +18,7 @@ from .serializers import (
     LeaveApplicationApprovalSerializer, LeaveApplicationAttachmentSerializer,
     LeaveApplicationCommentSerializer
 )
+from .email_utils import send_leave_status_email
 from accounts.views import IsHRPermission
 
 User = get_user_model()
@@ -417,6 +418,7 @@ def bulk_approve_leaves(request):
         app.approved_by = request.user
         app.approved_on = timezone.now()
         app.save()
+        send_leave_status_email(app)
         updated_count += 1
     
     return Response({
