@@ -73,6 +73,15 @@ def api_root(request):
                 'comprehensive_analysis': '/api/ai-services/analysis/comprehensive/',
                 'daily_analysis': '/api/ai-services/analysis/daily-all/',
             },
+            'hr_management': {
+                'recruitment_questions': '/api/hr-management/recruitment/questions/',
+                'recruitment_candidates': '/api/hr-management/recruitment/candidates/',
+                'training_programs': '/api/hr-management/training/programs/',
+                'training_enrollments': '/api/hr-management/training/enrollments/',
+                'performance_reviews': '/api/hr-management/performance/reviews/',
+                'employee_performance_report': '/api/hr-management/performance/reports/employee/?employee_id=<id>',
+                'feedback_360': '/api/hr-management/performance/feedback-360/',
+            },
             'admin': '/admin/'
         }
     })
@@ -93,6 +102,7 @@ urlpatterns = [
     path('api/attendance-management/', include('attendance.urls')),
     path('api/messaging/', include('messaging.urls')),
     path('api/ai-services/', include('ai_services.urls')),
+    path('api/hr-management/', include('hr_management.urls')),
 ]
 
 # Serve media files during development

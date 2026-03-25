@@ -10,7 +10,7 @@ from .models import EmployeeProfile, Position, EmployeeDocument, EmployeeNote
 from .serializers import (
     EmployeeProfileDetailSerializer, EmployeeProfileListSerializer,
     EmployeeCreateSerializer, PositionSerializer, EmployeeDocumentSerializer,
-    EmployeeNoteSerializer
+    EmployeeNoteSerializer, ColleagueSerializer
 )
 from accounts.views import IsHRPermission
 
@@ -129,6 +129,21 @@ class EmployeeProfileAPIView(generics.RetrieveUpdateAPIView):
             defaults={'status': 'ACTIVE', 'employment_type': 'FULL_TIME'}
         )
         return employee_profile
+
+
+class ColleagueListAPIView(generics.ListAPIView):
+    """Authenticated users can browse active colleagues for employee-facing features."""
+    serializer_class = ColleagueSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return (
+            EmployeeProfile.objects
+            .select_related('user', 'position')
+            .filter(user__is_active=True)
+            .exclude(user=self.request.user)
+            .order_by('user__last_name', 'user__first_name')
+        )
 
 # Position Management
 

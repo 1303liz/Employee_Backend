@@ -5,6 +5,7 @@ urlpatterns = [
     # Employee CRUD operations
     path('', views.EmployeeListCreateAPIView.as_view(), name='employee-list-create'),
     path('<int:pk>/', views.EmployeeDetailAPIView.as_view(), name='employee-detail'),
+    path('colleagues/', views.ColleagueListAPIView.as_view(), name='colleague-list'),
     
     # Employee profile (for logged-in employee)
     path('my-profile/', views.EmployeeProfileAPIView.as_view(), name='my-employee-profile'),

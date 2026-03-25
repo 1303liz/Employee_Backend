@@ -125,6 +125,24 @@ class EmployeeProfileListSerializer(serializers.ModelSerializer):
             'is_active_employee', 'created_at', 'updated_at'
         ]
 
+
+class ColleagueSerializer(serializers.ModelSerializer):
+    """Lightweight serializer for employee self-service features like peer reviews."""
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
+    username = serializers.CharField(source='user.username', read_only=True)
+    email = serializers.EmailField(source='user.email', read_only=True)
+    department = serializers.CharField(source='user.department', read_only=True)
+    position_title = serializers.CharField(source='position.title', read_only=True)
+    full_name = serializers.CharField(read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+
+    class Meta:
+        model = EmployeeProfile
+        fields = [
+            'id', 'user_id', 'username', 'email', 'department',
+            'position_title', 'full_name', 'status', 'status_display'
+        ]
+
 class EmployeeCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating new employee with user account"""
     # User fields
